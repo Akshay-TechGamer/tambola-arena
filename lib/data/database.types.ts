@@ -397,6 +397,54 @@ export type Database = {
         }
         Relationships: []
       }
+      tambola_claims: {
+        Row: {
+          created_at: string
+          game_id: string
+          id: string
+          pattern: string
+          status: string
+          ticket_id: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          game_id: string
+          id?: string
+          pattern: string
+          status: string
+          ticket_id: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          game_id?: string
+          id?: string
+          pattern?: string
+          status?: string
+          ticket_id?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tambola_claims_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "tambola_games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tambola_claims_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tambola_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tambola_games: {
         Row: {
           auto_interval_secs: number

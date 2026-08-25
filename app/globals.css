@@ -392,6 +392,37 @@ button {
 	text-align: right;
 }
 
+.announce {
+	background: var(--accent);
+	color: #2a1633;
+	font-weight: 800;
+	text-align: center;
+	padding: 12px;
+	border-radius: 10px;
+	margin-bottom: 16px;
+	font-size: 1.1rem;
+}
+
+.pattern-list li {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+.prize-won {
+	border-left: 3px solid var(--accent);
+}
+
+.prize-winner {
+	color: var(--accent-strong);
+	font-weight: 700;
+}
+
+.prize-open {
+	color: var(--muted);
+}
+
 .host-controls {
 	display: flex;
 	justify-content: center;

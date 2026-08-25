@@ -6,17 +6,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ensureSignedIn } from '@/lib/data/authRepo';
 import {
+	claimPattern,
 	drawNumber,
 	getGame,
 	getMyTickets,
+	listClaims,
 	listPlayers,
 	startGame,
+	type ClaimRow,
 	type GameRow,
+	type MyTicket,
 	type PlayerRow,
 } from '@/lib/data/gamesRepo';
 import { subscribeToGame } from '@/lib/realtime/gameChannel';
-import { patternLabel, type PatternID } from '@/lib/game/patterns';
-import { ticketNumbers, type Ticket } from '@/lib/game/ticket';
+import { patternLabel, validateClaim, type PatternID } from '@/lib/game/patterns';
+import { ticketNumbers } from '@/lib/game/ticket';
 import { TicketView } from '@/components/TicketView';
 import { CalledBoard } from '@/components/CalledBoard';
 
@@ -27,7 +31,10 @@ export function GameRoom({ gameID }: { gameID: string }) {
 	const [errorMsg, setErrorMsg] = useState('');
 	const [game, setGame] = useState<GameRow | null>(null);
 	const [players, setPlayers] = useState<PlayerRow[]>([]);
-	const [tickets, setTickets] = useState<Ticket[]>([]);
+	const [tickets, setTickets] = useState<MyTicket[]>([]);
+	const [claims, setClaims] = useState<ClaimRow[]>([]);
+	const [announce, setAnnounce] = useState<string | null>(null);
+	const [claimError, setClaimError] = useState<string | null>(null);
 	const [myID, setMyID] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
 	const [daubed, setDaubed] = useState<Set<number>>(new Set());
@@ -50,9 +57,10 @@ export function GameRoom({ gameID }: { gameID: string }) {
 				if (!row) {
 					throw new Error('Game not found — check the link.');
 				}
-				const [playerList, myTickets] = await Promise.all([
+				const [playerList, myTickets, claimList] = await Promise.all([
 					listPlayers(gameID),
 					getMyTickets(gameID, user.id),
+					listClaims(gameID),
 				]);
 				if (cancelled) {
 					return;
@@ -61,6 +69,7 @@ export function GameRoom({ gameID }: { gameID: string }) {
 				setGame(row);
 				setPlayers(playerList);
 				setTickets(myTickets);
+				setClaims(claimList);
 				setMyID(user.id);
 				// restore daubs
 				const saved = localStorage.getItem(`tambola-daub-${gameID}-${user.id}`);
@@ -94,13 +103,30 @@ export function GameRoom({ gameID }: { gameID: string }) {
 				setPlayers((current) => [...current, player]);
 			},
 			onGameUpdate: (row) => setGame(row),
+			onClaim: (claim) => {
+				setClaims((current) =>
+					current.some((c) => c.id === claim.id) ? current : [...current, claim],
+				);
+				if (claim.status === 'won') {
+					setAnnounce(`🎉 ${claim.username} won ${patternLabel(claim.pattern as PatternID)}!`);
+				}
+			},
 		});
 	}, [gameID, myID]);
 
 	const myNumbers = useMemo(
-		() => new Set(tickets.flatMap((ticket) => ticketNumbers(ticket))),
+		() => new Set(tickets.flatMap((ticket) => ticketNumbers(ticket.numbers))),
 		[tickets],
 	);
+	const wonBy = useMemo(() => {
+		const map = new Map<string, string>();
+		for (const claim of claims) {
+			if (claim.status === 'won') {
+				map.set(claim.pattern, claim.username);
+			}
+		}
+		return map;
+	}, [claims]);
 	const calledSet = useMemo(
 		() => new Set(game?.called_numbers ?? []),
 		[game?.called_numbers],
@@ -171,6 +197,28 @@ export function GameRoom({ gameID }: { gameID: string }) {
 			.finally(() => setDrawing(false));
 	}, [gameID]);
 
+	// Which ticket (if any) satisfies a pattern right now, for the claim button.
+	const satisfyingTicket = useCallback(
+		(pattern: PatternID): MyTicket | null => {
+			return tickets.find((t) => validateClaim(t.numbers, calledSet, pattern)) ?? null;
+		},
+		[tickets, calledSet],
+	);
+
+	const onClaim = useCallback(
+		(pattern: PatternID) => {
+			const ticket = satisfyingTicket(pattern);
+			if (!ticket) {
+				return;
+			}
+			setClaimError(null);
+			claimPattern(gameID, ticket.id, pattern).catch((e) =>
+				setClaimError(e instanceof Error ? e.message : 'Claim failed'),
+			);
+		},
+		[gameID, satisfyingTicket],
+	);
+
 	const toggleDaub = useCallback(
 		(n: number) => {
 			if (!calledSet.has(n)) {
@@ -223,6 +271,8 @@ export function GameRoom({ gameID }: { gameID: string }) {
 				)}
 			</div>
 
+			{announce && !isWaiting && <div className="announce">{announce}</div>}
+
 			{!isWaiting && (
 				<div className="caller-strip">
 					<div className="current-number">
@@ -270,10 +320,10 @@ export function GameRoom({ gameID }: { gameID: string }) {
 						</label>
 					)}
 				</div>
-				{tickets.map((ticket, i) => (
+				{tickets.map((ticket) => (
 					<TicketView
-						key={i}
-						ticket={ticket}
+						key={ticket.id}
+						ticket={ticket.numbers}
 						marked={daubed}
 						onCellClick={isWaiting ? undefined : toggleDaub}
 					/>
@@ -297,17 +347,51 @@ export function GameRoom({ gameID }: { gameID: string }) {
 					</ul>
 				</section>
 				<section className="panel">
-					<h2 className="panel-title">Winning patterns</h2>
+					<h2 className="panel-title">Prizes</h2>
 					<ul className="pattern-list">
-						{(game.enabled_patterns as PatternID[]).map((id) => (
-							<li key={id}>{patternLabel(id)}</li>
-						))}
+						{(game.enabled_patterns as PatternID[]).map((id) => {
+							const winner = wonBy.get(id);
+							const claimable = !winner && !isWaiting && satisfyingTicket(id) !== null;
+							return (
+								<li key={id} className={winner ? 'prize-won' : ''}>
+									<span>{patternLabel(id)}</span>
+									{winner ? (
+										<span className="prize-winner">✓ {winner}</span>
+									) : claimable ? (
+										<button type="button" className="btn btn-small btn-primary" onClick={() => onClaim(id)}>
+											Claim!
+										</button>
+									) : (
+										<span className="prize-open">—</span>
+									)}
+								</li>
+							);
+						})}
 					</ul>
+					{claimError && <p className="form-error">⚠ {claimError}</p>}
 				</section>
 			</div>
 
 			{isWaiting && !isHost && <p className="page-note">Waiting for the host to start…</p>}
-			{isFinished && <p className="page-note">All 90 numbers called. 🎉</p>}
+			{isFinished && (
+				<section className="panel">
+					<h2 className="panel-title">🏆 Final results</h2>
+					{claims.filter((c) => c.status === 'won').length === 0 ? (
+						<p className="game-subtitle">No prizes were claimed.</p>
+					) : (
+						<ul className="pattern-list">
+							{claims
+								.filter((c) => c.status === 'won')
+								.map((c) => (
+									<li key={c.id} className="prize-won">
+										<span>{patternLabel(c.pattern as PatternID)}</span>
+										<span className="prize-winner">✓ {c.username}</span>
+									</li>
+								))}
+						</ul>
+					)}
+				</section>
+			)}
 		</div>
 	);
 }

@@ -8,6 +8,12 @@ import type { PatternID } from '@/lib/game/patterns';
 export type GameRow = Database['public']['Tables']['tambola_games']['Row'];
 export type PlayerRow = Database['public']['Tables']['tambola_players']['Row'];
 export type TicketRow = Database['public']['Tables']['tambola_tickets']['Row'];
+export type ClaimRow = Database['public']['Tables']['tambola_claims']['Row'];
+
+export interface MyTicket {
+	id: string;
+	numbers: Ticket;
+}
 
 export interface CreateGameInput {
 	hostId: string;
@@ -129,7 +135,7 @@ export async function drawNumber(gameID: string): Promise<number | null> {
 	return data ?? null;
 }
 
-export async function getMyTickets(gameID: string, userID: string): Promise<Ticket[]> {
+export async function getMyTickets(gameID: string, userID: string): Promise<MyTicket[]> {
 	const supabase = getSupabase();
 	const { data, error } = await supabase
 		.from('tambola_tickets')
@@ -140,5 +146,46 @@ export async function getMyTickets(gameID: string, userID: string): Promise<Tick
 	if (error) {
 		throw new Error(`Could not load tickets: ${error.message}`);
 	}
-	return (data ?? []).map((row) => row.numbers as unknown as Ticket);
+	return (data ?? []).map((row) => ({ id: row.id, numbers: row.numbers as unknown as Ticket }));
+}
+
+export async function listClaims(gameID: string): Promise<ClaimRow[]> {
+	const supabase = getSupabase();
+	const { data, error } = await supabase
+		.from('tambola_claims')
+		.select()
+		.eq('game_id', gameID)
+		.order('created_at', { ascending: true });
+	if (error) {
+		throw new Error(`Could not load claims: ${error.message}`);
+	}
+	return data ?? [];
+}
+
+/** Submits a claim for server-side verification. Returns 'won' or 'bogey'. */
+export async function claimPattern(
+	gameID: string,
+	ticketId: string,
+	pattern: string,
+): Promise<'won' | 'bogey'> {
+	const supabase = getSupabase();
+	const { data, error } = await supabase.functions.invoke('claim', {
+		body: { gameID, ticketId, pattern },
+	});
+	if (error) {
+		let message = 'Claim rejected';
+		const context = (error as { context?: Response }).context;
+		if (context && typeof context.json === 'function') {
+			try {
+				const body = (await context.json()) as { error?: string };
+				if (body.error) {
+					message = body.error;
+				}
+			} catch {
+				// keep generic
+			}
+		}
+		throw new Error(message);
+	}
+	return (data as { status: 'won' | 'bogey' }).status;
 }
