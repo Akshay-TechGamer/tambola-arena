@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Anybody, Plus_Jakarta_Sans, Space_Grotesk } from 'next/font/google';
-import Link from 'next/link';
-import { AuthButton } from '@/components/AuthButton';
+import { SiteHeader } from '@/components/SiteHeader';
 import './globals.css';
 
 const display = Anybody({ subsets: ['latin'], weight: ['700', '800'], variable: '--font-display' });
@@ -21,12 +20,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 	return (
 		<html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
 			<body>
-				<header className="site-header">
-					<Link href="/" className="site-logo">
-						🎡 Tambola Arena
-					</Link>
-					<AuthButton />
-				</header>
+				<SiteHeader />
 				<main className="container">{children}</main>
 			</body>
 		</html>
