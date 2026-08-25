@@ -1,0 +1,122 @@
+// All tambola_* database access.
+
+import { getSupabase } from './supabaseClient';
+import type { Database } from './database.types';
+import { generateTicket, type Ticket } from '@/lib/game/ticket';
+import type { PatternID } from '@/lib/game/patterns';
+
+export type GameRow = Database['public']['Tables']['tambola_games']['Row'];
+export type PlayerRow = Database['public']['Tables']['tambola_players']['Row'];
+export type TicketRow = Database['public']['Tables']['tambola_tickets']['Row'];
+
+export interface CreateGameInput {
+	hostId: string;
+	username: string;
+	inviteCode: string;
+	callMode: 'auto' | 'manual';
+	autoIntervalSecs: number;
+	patterns: PatternID[];
+}
+
+export async function createGame(input: CreateGameInput): Promise<GameRow> {
+	const supabase = getSupabase();
+	const { data, error } = await supabase
+		.from('tambola_games')
+		.insert({
+			host_id: input.hostId,
+			invite_code: input.inviteCode,
+			call_mode: input.callMode,
+			auto_interval_secs: input.autoIntervalSecs,
+			enabled_patterns: input.patterns,
+		})
+		.select()
+		.single();
+	if (error || !data) {
+		throw new Error(`Could not create game: ${error?.message}`);
+	}
+	// The host is a player too, with the first ticket.
+	await addPlayer(data.id, input.hostId, input.username);
+	return data;
+}
+
+export async function getGame(gameID: string): Promise<GameRow | null> {
+	const supabase = getSupabase();
+	const { data, error } = await supabase
+		.from('tambola_games')
+		.select()
+		.eq('id', gameID)
+		.maybeSingle();
+	if (error) {
+		throw new Error(`Could not load game: ${error.message}`);
+	}
+	return data;
+}
+
+export async function findGameByInviteCode(code: string): Promise<GameRow | null> {
+	const supabase = getSupabase();
+	const { data, error } = await supabase
+		.from('tambola_games')
+		.select()
+		.eq('invite_code', code.toUpperCase())
+		.maybeSingle();
+	if (error) {
+		throw new Error(`Could not look up code: ${error.message}`);
+	}
+	return data;
+}
+
+/** Adds a player (if not already in) and gives them one ticket. Idempotent. */
+export async function addPlayer(gameID: string, userID: string, username: string): Promise<void> {
+	const supabase = getSupabase();
+	const { data: existing } = await supabase
+		.from('tambola_players')
+		.select('user_id')
+		.eq('game_id', gameID)
+		.eq('user_id', userID)
+		.maybeSingle();
+	if (existing) {
+		return;
+	}
+	const { error: playerError } = await supabase
+		.from('tambola_players')
+		.insert({ game_id: gameID, user_id: userID, username });
+	if (playerError) {
+		throw new Error(`Could not join: ${playerError.message}`);
+	}
+	// NOTE: ticket generated client-side for now; moves server-side when
+	// prizes/anti-cheat land (see AGENTS.md).
+	const ticket: Ticket = generateTicket();
+	const { error: ticketError } = await supabase
+		.from('tambola_tickets')
+		.insert({ game_id: gameID, user_id: userID, ticket_index: 0, numbers: ticket });
+	if (ticketError) {
+		throw new Error(`Could not create ticket: ${ticketError.message}`);
+	}
+}
+
+export async function listPlayers(gameID: string): Promise<PlayerRow[]> {
+	const supabase = getSupabase();
+	const { data, error } = await supabase
+		.from('tambola_players')
+		.select()
+		.eq('game_id', gameID)
+		.order('joined_at', { ascending: true });
+	if (error) {
+		throw new Error(`Could not load players: ${error.message}`);
+	}
+	return data ?? [];
+}
+
+export async function getMyTickets(gameID: string, userID: string): Promise<Ticket[]> {
+	const supabase = getSupabase();
+	const { data, error } = await supabase
+		.from('tambola_tickets')
+		.select()
+		.eq('game_id', gameID)
+		.eq('user_id', userID)
+		.order('ticket_index', { ascending: true });
+	if (error) {
+		throw new Error(`Could not load tickets: ${error.message}`);
+	}
+	return (data ?? []).map((row) => row.numbers as unknown as Ticket);
+}
