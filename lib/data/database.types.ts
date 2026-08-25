@@ -609,6 +609,7 @@ export type Database = {
         Returns: number
       }
       get_wish: { Args: { p_id: string }; Returns: Json }
+      tambola_draw_number: { Args: { p_game_id: string }; Returns: number }
     }
     Enums: {
       chess_game_mode: "online" | "computer"

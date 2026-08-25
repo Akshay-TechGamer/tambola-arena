@@ -107,6 +107,28 @@ export async function listPlayers(gameID: string): Promise<PlayerRow[]> {
 	return data ?? [];
 }
 
+export async function startGame(gameID: string): Promise<void> {
+	const supabase = getSupabase();
+	const { error } = await supabase
+		.from('tambola_games')
+		.update({ status: 'active' })
+		.eq('id', gameID)
+		.eq('status', 'waiting');
+	if (error) {
+		throw new Error(`Could not start game: ${error.message}`);
+	}
+}
+
+/** Draws the next number via the server RPC. Returns it, or null when done. */
+export async function drawNumber(gameID: string): Promise<number | null> {
+	const supabase = getSupabase();
+	const { data, error } = await supabase.rpc('tambola_draw_number', { p_game_id: gameID });
+	if (error) {
+		throw new Error(`Could not draw: ${error.message}`);
+	}
+	return data ?? null;
+}
+
 export async function getMyTickets(gameID: string, userID: string): Promise<Ticket[]> {
 	const supabase = getSupabase();
 	const { data, error } = await supabase
