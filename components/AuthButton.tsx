@@ -30,12 +30,17 @@ export function AuthButton() {
 		};
 	}, []);
 
-	const signInWithGoogle = () => {
-		void getSupabase().auth.signInWithOAuth({
-			provider: 'google',
-			options: { redirectTo: window.location.href },
-		});
-	};
+	// Google sign-in is disabled for now: this Supabase project is shared and
+	// its OAuth redirects to another app (Chowka Bhara). Players use the
+	// anonymous guest session (ensureSignedIn) instead. To re-enable, restore
+	// the button below and wire up signInWithGoogle again.
+	//
+	// const signInWithGoogle = () => {
+	// 	void getSupabase().auth.signInWithOAuth({
+	// 		provider: 'google',
+	// 		options: { redirectTo: window.location.href },
+	// 	});
+	// };
 
 	const signOut = () => {
 		void getSupabase()
@@ -46,11 +51,6 @@ export function AuthButton() {
 	return (
 		<div className="auth-box">
 			{view && <span className="auth-name">{view.name}</span>}
-			{(!view || view.isGuest) && (
-				<button type="button" className="btn btn-small" onClick={signInWithGoogle}>
-					Sign in with Google
-				</button>
-			)}
 			{view && !view.isGuest && (
 				<button type="button" className="btn btn-small" onClick={signOut}>
 					Sign out
