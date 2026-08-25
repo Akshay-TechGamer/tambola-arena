@@ -29,7 +29,7 @@ export function TicketView({ ticket, marked, onCellClick }: TicketViewProps) {
 								onClick={onCellClick ? () => onCellClick(cell) : undefined}
 								disabled={!onCellClick}
 							>
-								{cell}
+								<span className="cell-num">{cell}</span>
 							</button>
 						);
 					})}

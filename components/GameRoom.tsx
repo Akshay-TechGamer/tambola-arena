@@ -131,6 +131,11 @@ export function GameRoom({ gameID }: { gameID: string }) {
 		() => new Set(game?.called_numbers ?? []),
 		[game?.called_numbers],
 	);
+	// The four calls before the current one, most recent first.
+	const recentCalls = useMemo(() => {
+		const all = game?.called_numbers ?? [];
+		return all.slice(0, -1).slice(-4).reverse();
+	}, [game?.called_numbers]);
 
 	// Auto-daub: when new numbers are called, mark the ones on my ticket.
 	useEffect(() => {
@@ -273,103 +278,132 @@ export function GameRoom({ gameID }: { gameID: string }) {
 
 			{announce && !isWaiting && <div className="announce">{announce}</div>}
 
-			{!isWaiting && (
-				<div className="caller-strip">
-					<div className="current-number">
-						<span className="current-label">Current</span>
-						<span className="current-value">{game.current_number ?? '—'}</span>
-					</div>
-					<div className="called-wrap">
-						<CalledBoard called={calledSet} current={game.current_number} />
-						<p className="called-count">{calledSet.size} / 90 called</p>
-					</div>
-				</div>
-			)}
-
-			{/* Host controls */}
 			{isHost && isWaiting && (
 				<button type="button" className="btn btn-primary btn-block" onClick={onStart}>
 					Start game ({players.length} {players.length === 1 ? 'player' : 'players'})
 				</button>
 			)}
-			{isHost && !isWaiting && !isFinished && (
-				<div className="host-controls">
-					{game.call_mode === 'manual' ? (
-						<button type="button" className="btn btn-primary" onClick={onDraw} disabled={drawing}>
-							{drawing ? 'Drawing…' : '🎲 Next number'}
-						</button>
-					) : (
-						<button type="button" className="btn" onClick={() => setAutoPaused((p) => !p)}>
-							{autoPaused ? '▶ Resume auto-call' : '⏸ Pause auto-call'}
-						</button>
-					)}
-				</div>
-			)}
 
-			<section className="panel">
-				<div className="ticket-head">
-					<h2 className="panel-title">Your ticket</h2>
+			<div className="arena">
+				<div className="arena-center">
 					{!isWaiting && (
-						<label className="auto-daub">
-							<input
-								type="checkbox"
-								checked={autoDaub}
-								onChange={(e) => setAutoDaub(e.target.checked)}
-							/>{' '}
-							Auto-mark
-						</label>
-					)}
-				</div>
-				{tickets.map((ticket) => (
-					<TicketView
-						key={ticket.id}
-						ticket={ticket.numbers}
-						marked={daubed}
-						onCellClick={isWaiting ? undefined : toggleDaub}
-					/>
-				))}
-				{!isWaiting && !autoDaub && (
-					<p className="game-subtitle">Tap a called number to mark it.</p>
-				)}
-			</section>
-
-			<div className="room-grid">
-				<section className="panel">
-					<h2 className="panel-title">Players ({players.length})</h2>
-					<ul className="player-list">
-						{players.map((player) => (
-							<li key={player.user_id}>
-								{player.username}
-								{player.user_id === game.host_id && <span className="host-tag">host</span>}
-								{player.user_id === myID && <span className="you-tag">you</span>}
-							</li>
-						))}
-					</ul>
-				</section>
-				<section className="panel">
-					<h2 className="panel-title">Prizes</h2>
-					<ul className="pattern-list">
-						{(game.enabled_patterns as PatternID[]).map((id) => {
-							const winner = wonBy.get(id);
-							const claimable = !winner && !isWaiting && satisfyingTicket(id) !== null;
-							return (
-								<li key={id} className={winner ? 'prize-won' : ''}>
-									<span>{patternLabel(id)}</span>
-									{winner ? (
-										<span className="prize-winner">✓ {winner}</span>
-									) : claimable ? (
-										<button type="button" className="btn btn-small btn-primary" onClick={() => onClaim(id)}>
-											Claim!
+						<div className="caller-card">
+							<div className="caller-label">Current Number</div>
+							<div className="current-circle">{game.current_number ?? '—'}</div>
+							<div className="recent-calls">
+								<div className="caller-label">Recent Calls</div>
+								<div className="recent-row">
+									{recentCalls.length === 0 && <span className="recent-empty">—</span>}
+									{recentCalls.map((n) => (
+										<span className="recent-chip" key={n}>
+											{n}
+										</span>
+									))}
+								</div>
+							</div>
+							{isHost && !isFinished && (
+								<div className="host-controls">
+									{game.call_mode === 'manual' ? (
+										<button
+											type="button"
+											className="btn btn-primary"
+											onClick={onDraw}
+											disabled={drawing}
+										>
+											{drawing ? 'Drawing…' : '🎲 Next number'}
 										</button>
 									) : (
-										<span className="prize-open">—</span>
+										<button type="button" className="btn" onClick={() => setAutoPaused((p) => !p)}>
+											{autoPaused ? '▶ Resume auto-call' : '⏸ Pause auto-call'}
+										</button>
 									)}
+								</div>
+							)}
+						</div>
+					)}
+
+					{!isWaiting && (
+						<div className="board-card">
+							<CalledBoard called={calledSet} current={game.current_number} />
+							<p className="called-count">{calledSet.size} / 90 called</p>
+						</div>
+					)}
+
+					<section className="panel">
+						<div className="ticket-head">
+							<h2 className="panel-title">Your ticket</h2>
+							{!isWaiting && (
+								<label className="auto-daub">
+									<input
+										type="checkbox"
+										checked={autoDaub}
+										onChange={(e) => setAutoDaub(e.target.checked)}
+									/>{' '}
+									Auto-mark
+								</label>
+							)}
+						</div>
+						{tickets.map((ticket) => (
+							<TicketView
+								key={ticket.id}
+								ticket={ticket.numbers}
+								marked={daubed}
+								onCellClick={isWaiting ? undefined : toggleDaub}
+							/>
+						))}
+						{!isWaiting && !autoDaub && (
+							<p className="game-subtitle">Tap a called number to mark it.</p>
+						)}
+					</section>
+				</div>
+
+				<div className="arena-side">
+					<section className="panel">
+						<h2 className="panel-title">🏆 Prizes</h2>
+						<ul className="pattern-list">
+							{(game.enabled_patterns as PatternID[]).map((id) => {
+								const winner = wonBy.get(id);
+								const claimable = !winner && !isWaiting && satisfyingTicket(id) !== null;
+								return (
+									<li
+										key={id}
+										className={`prize${winner ? ' prize-won' : ''}${claimable ? ' prize-claimable' : ''}`}
+									>
+										<div>
+											<div className="prize-name">{patternLabel(id)}</div>
+											<div className="prize-status">
+												{winner ? `Claimed by ${winner}` : 'Available'}
+											</div>
+										</div>
+										{winner ? (
+											<span className="prize-check">✓</span>
+										) : claimable ? (
+											<button type="button" className="claim-btn" onClick={() => onClaim(id)}>
+												Claim
+											</button>
+										) : (
+											<span className="claim-btn claim-off">Claim</span>
+										)}
+									</li>
+								);
+							})}
+						</ul>
+						{claimError && <p className="form-error">⚠ {claimError}</p>}
+					</section>
+
+					<section className="panel">
+						<h2 className="panel-title">Players ({players.length})</h2>
+						<ul className="player-list">
+							{players.map((player) => (
+								<li key={player.user_id}>
+									{player.username}
+									{player.user_id === game.host_id && <span className="host-tag">host</span>}
+									{player.user_id === myID && <span className="you-tag">you</span>}
 								</li>
-							);
-						})}
-					</ul>
-					{claimError && <p className="form-error">⚠ {claimError}</p>}
-				</section>
+							))}
+						</ul>
+					</section>
+				</div>
 			</div>
 
 			{isWaiting && !isHost && <p className="page-note">Waiting for the host to start…</p>}
