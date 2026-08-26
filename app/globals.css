@@ -931,7 +931,7 @@ button {
 	}
 
 	.container {
-		padding: 14px 12px 18px;
+		padding: 12px 12px 10px;
 	}
 
 	/* Tighter home so it fits with no scroll */
@@ -1508,42 +1508,43 @@ button {
 /* Tighter home on small phones (no scroll) */
 @media (max-width: 720px) {
 	.home-title {
-		font-size: 1.75rem;
-		margin: 2px 0 2px;
+		font-size: 1.6rem;
+		margin: 2px 0 1px;
 	}
 
 	.home-tag {
-		margin: 0 0 10px;
-		font-size: 0.9rem;
+		margin: 0 0 8px;
+		font-size: 0.85rem;
 	}
 
 	.field {
-		margin: 0 auto 8px;
+		margin: 0 auto 6px;
 	}
 
 	.field-label {
-		margin: 8px 0 6px;
+		margin: 6px 0 4px;
 	}
 
 	.home .panels {
-		gap: 10px;
+		gap: 8px;
 	}
 
 	.home .panel {
-		padding: 12px 14px;
+		padding: 10px 12px;
 	}
 
 	.home .panel-title {
-		margin-bottom: 8px;
+		margin-bottom: 6px;
+		font-size: 1.05rem;
 	}
 
 	.home .config-btn {
-		padding: 10px 14px;
+		padding: 8px 12px;
 	}
 
 	.home .btn-block {
-		margin: 8px 0 0;
-		padding: 12px;
+		margin: 6px 0 0;
+		padding: 11px;
 	}
 }
 
