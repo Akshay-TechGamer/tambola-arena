@@ -73,7 +73,7 @@ button {
 .container {
 	max-width: 1100px;
 	margin: 0 auto;
-	padding: 20px 16px 80px;
+	padding: 20px 16px 28px;
 }
 
 .auth-box {
@@ -835,7 +835,7 @@ button {
 
 /* ---------- Mobile ---------- */
 
-@media (max-width: 860px) {
+@media (max-width: 760px) {
 	.arena {
 		flex-direction: column;
 	}
@@ -1189,5 +1189,121 @@ button {
 
 	.sheet-grip {
 		padding: 14px 0 4px;
+	}
+}
+
+/* ---------- Desktop: fit the game to the viewport (no page scrollbar) ---------- */
+
+@media (min-width: 761px) {
+	.arena {
+		align-items: stretch;
+		height: calc(100vh - 198px);
+		overflow: hidden;
+	}
+
+	.arena-center {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		min-height: 0;
+		overflow-y: auto;
+	}
+
+	.arena-center > * {
+		margin-bottom: 0 !important;
+	}
+
+	/* Compact caller so the left column fits on shorter laptops */
+	.arena-center .caller-card {
+		padding: 16px;
+	}
+
+	.arena-center .current-circle {
+		width: 104px;
+		height: 104px;
+		font-size: 3.1rem;
+	}
+
+	.arena-center .caller-label {
+		margin-bottom: 6px;
+	}
+
+	.arena-center .panel {
+		padding: 14px 16px;
+	}
+
+	.arena-center .ticket-head {
+		margin-bottom: 8px;
+	}
+
+	.arena-center .recent-calls {
+		margin-top: 12px;
+	}
+
+	.arena-center .recent-chip {
+		width: 34px;
+		height: 34px;
+	}
+
+	.arena-center .host-controls {
+		margin-top: 12px;
+	}
+
+	.arena-side {
+		height: calc(100vh - 198px);
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		min-height: 0;
+		overflow: hidden;
+	}
+
+	.arena-side > * {
+		margin-bottom: 0 !important;
+	}
+
+	.arena-side .board-card {
+		flex: 0 0 auto;
+		width: 100%;
+	}
+
+	.arena-side .board-card .called-board {
+		max-width: 208px;
+		margin: 0 auto;
+	}
+
+	.arena-side .board-head {
+		max-width: 208px;
+		margin: 0 auto 8px;
+	}
+
+	/* Prizes take the remaining height and scroll their list internally */
+	.arena-side .prizes-panel {
+		flex: 1 1 auto;
+		min-height: 176px;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.arena-side .prizes-panel .pattern-list {
+		flex: 1 1 auto;
+		min-height: 0;
+		overflow-y: auto;
+		padding-right: 4px;
+	}
+
+	/* Players list is capped and scrolls internally */
+	.arena-side .players-panel {
+		flex: 0 0 auto;
+		max-height: 86px;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.arena-side .players-panel .player-list {
+		flex: 1 1 auto;
+		min-height: 0;
+		overflow-y: auto;
+		margin: 0;
 	}
 }

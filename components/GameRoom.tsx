@@ -344,7 +344,7 @@ export function GameRoom({ gameID }: { gameID: string }) {
 	);
 
 	const prizesPanel = (
-		<section className="panel">
+		<section className="panel prizes-panel">
 			<h2 className="panel-title">🏆 Prizes</h2>
 			<ul className="pattern-list">
 				{enabledPatterns.map((id) => {
@@ -376,7 +376,7 @@ export function GameRoom({ gameID }: { gameID: string }) {
 	);
 
 	const playersPanel = (
-		<section className="panel">
+		<section className="panel players-panel">
 			<h2 className="panel-title">Players ({players.length})</h2>
 			<ul className="player-list">
 				{players.map((player) => (
