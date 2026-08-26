@@ -1605,3 +1605,73 @@ button {
 	font-family: var(--font-num);
 	color: var(--primary);
 }
+
+/* ---------- Results: winnings by player + totals ---------- */
+
+.results-subhead {
+	margin: 16px 0 8px;
+	font-family: var(--font-display);
+	font-size: 0.95rem;
+	font-weight: 700;
+	color: var(--primary);
+}
+
+.winnings-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.winnings-list li {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 8px 12px;
+	background: var(--surface-low);
+	border-radius: 10px;
+}
+
+.winnings-name {
+	font-weight: 700;
+	color: var(--on-surface);
+}
+
+.winnings-count {
+	color: var(--on-surface-variant);
+	font-weight: 500;
+	font-size: 0.82rem;
+}
+
+.results-total {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 12px;
+	padding: 11px 14px;
+	background: var(--primary-container);
+	color: var(--on-primary-container);
+	border-radius: 12px;
+	font-weight: 700;
+}
+
+.results-total b {
+	font-family: var(--font-num);
+	font-size: 1.2rem;
+}
+
+.results-pot {
+	margin-top: 8px;
+	background: var(--surface);
+	color: var(--on-surface-variant);
+	border: 1px solid var(--surface-variant);
+	font-weight: 600;
+}
+
+.results-pot b {
+	font-size: 1.05rem;
+	color: var(--primary);
+}

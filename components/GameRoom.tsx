@@ -406,12 +406,30 @@ export function GameRoom({ gameID }: { gameID: string }) {
 		</section>
 	);
 
+	const wonClaims = claims.filter((c) => c.status === 'won');
+	const winnings = Object.values(
+		wonClaims.reduce(
+			(acc, c) => {
+				const amount = prizeAmounts[c.pattern] ?? 0;
+				const row = acc[c.username] ?? { username: c.username, total: 0, count: 0 };
+				row.total += amount;
+				row.count += 1;
+				acc[c.username] = row;
+				return acc;
+			},
+			{} as Record<string, { username: string; total: number; count: number }>,
+		),
+	).sort((a, b) => b.total - a.total);
+	const totalWon = wonClaims.reduce((sum, c) => sum + (prizeAmounts[c.pattern] ?? 0), 0);
+	const pot = game.entry_amount * players.length;
+
 	const resultsPanel = (
 		<section className="panel">
 			<h2 className="panel-title">🏆 Final results</h2>
 			{claims.filter((c) => c.status === 'won').length === 0 ? (
 				<p className="game-subtitle">No prizes were claimed.</p>
 			) : (
+				<>
 				<ul className="pattern-list">
 					{claims
 						.filter((c) => c.status === 'won')
@@ -425,6 +443,28 @@ export function GameRoom({ gameID }: { gameID: string }) {
 							</li>
 						))}
 				</ul>
+				<h3 className="results-subhead">Winnings by player</h3>
+				<ul className="winnings-list">
+					{winnings.map((w) => (
+						<li key={w.username}>
+							<span className="winnings-name">
+								{w.username} <span className="winnings-count">· {w.count} {w.count === 1 ? 'win' : 'wins'}</span>
+							</span>
+							<span className="prize-money">₹{w.total}</span>
+						</li>
+					))}
+				</ul>
+				<div className="results-total">
+					<span>Total won</span>
+					<b>₹{totalWon}</b>
+				</div>
+				{game.entry_amount > 0 && (
+					<div className="results-total results-pot">
+						<span>Pot ({players.length} × ₹{game.entry_amount})</span>
+						<b>₹{pot}</b>
+					</div>
+				)}
+				</>
 			)}
 		</section>
 	);
