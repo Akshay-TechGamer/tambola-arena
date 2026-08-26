@@ -100,7 +100,7 @@ export default function HomePage() {
 	return (
 		<div className="home">
 			<h1 className="home-title">🎡 Tambola Arena</h1>
-			<p className="home-tag">Play Housie online with friends. Unlimited players. Free.</p>
+			<p className="home-tag">Play Housie online. Unlimited players. Free.</p>
 
 			<label className="field">
 				<span className="field-label">Your name</span>

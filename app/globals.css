@@ -1428,3 +1428,45 @@ button {
 		display: none;
 	}
 }
+
+/* Tighter home on small phones (no scroll) */
+@media (max-width: 720px) {
+	.home-title {
+		font-size: 1.75rem;
+		margin: 2px 0 2px;
+	}
+
+	.home-tag {
+		margin: 0 0 10px;
+		font-size: 0.9rem;
+	}
+
+	.field {
+		margin: 0 auto 8px;
+	}
+
+	.field-label {
+		margin: 8px 0 6px;
+	}
+
+	.home .panels {
+		gap: 10px;
+	}
+
+	.home .panel {
+		padding: 12px 14px;
+	}
+
+	.home .panel-title {
+		margin-bottom: 8px;
+	}
+
+	.home .config-btn {
+		padding: 10px 14px;
+	}
+
+	.home .btn-block {
+		margin: 8px 0 0;
+		padding: 12px;
+	}
+}
