@@ -619,14 +619,10 @@ export function GameRoom({ gameID }: { gameID: string }) {
 				<BottomSheet onClose={() => setSheet(null)}>{boardCard}</BottomSheet>
 			)}
 			{sheet === 'prizes' && (
-				<BottomSheet title="Prizes" onClose={() => setSheet(null)}>
-					{prizesPanel}
-				</BottomSheet>
+				<BottomSheet onClose={() => setSheet(null)}>{prizesPanel}</BottomSheet>
 			)}
 			{sheet === 'players' && (
-				<BottomSheet title="Players" onClose={() => setSheet(null)}>
-					{playersPanel}
-				</BottomSheet>
+				<BottomSheet onClose={() => setSheet(null)}>{playersPanel}</BottomSheet>
 			)}
 			{sheet === 'results' && (
 				<BottomSheet onClose={() => setSheet(null)}>{resultsPanel}</BottomSheet>
