@@ -1522,3 +1522,86 @@ button {
 		opacity: 1;
 	}
 }
+
+/* ---------- Prize config (entry + per-pattern amounts) ---------- */
+
+.prize-config {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.prize-config-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.prize-config-row .chip {
+	flex: 1;
+	text-align: left;
+}
+
+.prize-amount {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	flex: 0 0 auto;
+}
+
+.prize-amount-cur {
+	color: var(--on-surface-variant);
+	font-weight: 700;
+}
+
+.prize-amount-input {
+	width: 66px;
+	padding: 7px 8px;
+	background: var(--surface);
+	color: var(--on-surface);
+	border: 1px solid var(--outline-variant);
+	border-radius: 8px;
+	font: inherit;
+	font-family: var(--font-num);
+}
+
+.prize-amount-input:focus {
+	outline: none;
+	border-color: var(--primary-container);
+}
+
+.prize-amount-input:disabled {
+	opacity: 0.45;
+}
+
+/* Prize amount shown in the Prizes list + results */
+.prize-money {
+	flex: 0 0 auto;
+	font-family: var(--font-num);
+	font-weight: 800;
+	color: var(--tertiary);
+	white-space: nowrap;
+}
+
+.prize-claimable .prize-money {
+	color: var(--on-primary-container);
+}
+
+/* Entry / pot strip in the waiting room */
+.pot-strip {
+	display: flex;
+	justify-content: center;
+	gap: 16px;
+	flex-wrap: wrap;
+	background: var(--surface);
+	border: 1px solid var(--surface-variant);
+	border-radius: 12px;
+	padding: 10px 14px;
+	margin-bottom: 16px;
+	box-shadow: var(--shadow-sm);
+}
+
+.pot-strip b {
+	font-family: var(--font-num);
+	color: var(--primary);
+}

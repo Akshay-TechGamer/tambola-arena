@@ -279,6 +279,7 @@ export function GameRoom({ gameID }: { gameID: string }) {
 	const isWaiting = game.status === 'waiting';
 	const isFinished = game.status === 'finished';
 	const enabledPatterns = game.enabled_patterns as PatternID[];
+	const prizeAmounts = (game.prize_amounts as Record<string, number>) ?? {};
 
 	const claimables =
 		!isWaiting && !isFinished
@@ -374,6 +375,9 @@ export function GameRoom({ gameID }: { gameID: string }) {
 									{winner ? `Claimed by ${winner}` : claimable ? 'Ready to claim!' : 'Available'}
 								</div>
 							</div>
+							{prizeAmounts[id] > 0 && (
+								<span className="prize-money">₹{prizeAmounts[id]}</span>
+							)}
 							{claimable && (
 								<button type="button" className="claim-btn" onClick={() => onClaim(id)}>
 									Claim
@@ -414,7 +418,10 @@ export function GameRoom({ gameID }: { gameID: string }) {
 						.map((c) => (
 							<li key={c.id} className="prize-won">
 								<span>{patternLabel(c.pattern as PatternID)}</span>
-								<span className="prize-winner">✓ {c.username}</span>
+								<span className="prize-winner">
+									✓ {c.username}
+									{(prizeAmounts[c.pattern] ?? 0) > 0 ? ` · ₹${prizeAmounts[c.pattern]}` : ''}
+								</span>
 							</li>
 						))}
 				</ul>
@@ -453,6 +460,13 @@ export function GameRoom({ gameID }: { gameID: string }) {
 			)}
 
 			{isFinished && <Confetti />}
+
+			{isWaiting && game.entry_amount > 0 && (
+				<div className="pot-strip">
+					<span>Entry <b>₹{game.entry_amount}</b></span>
+					<span>Pot <b>₹{game.entry_amount * players.length}</b></span>
+				</div>
+			)}
 
 			{isHost && isWaiting && (
 				<button type="button" className="btn btn-primary btn-block" onClick={onStart}>

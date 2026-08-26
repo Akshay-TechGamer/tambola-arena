@@ -449,6 +449,8 @@ export type Database = {
         Row: {
           auto_daub: boolean
           auto_interval_secs: number
+          entry_amount: number
+          prize_amounts: Json
           call_mode: Database["public"]["Enums"]["tambola_call_mode"]
           called_numbers: number[]
           created_at: string
@@ -463,6 +465,8 @@ export type Database = {
         Insert: {
           auto_daub?: boolean
           auto_interval_secs?: number
+          entry_amount?: number
+          prize_amounts?: Json
           call_mode?: Database["public"]["Enums"]["tambola_call_mode"]
           called_numbers?: number[]
           created_at?: string
@@ -477,6 +481,8 @@ export type Database = {
         Update: {
           auto_daub?: boolean
           auto_interval_secs?: number
+          entry_amount?: number
+          prize_amounts?: Json
           call_mode?: Database["public"]["Enums"]["tambola_call_mode"]
           called_numbers?: number[]
           created_at?: string

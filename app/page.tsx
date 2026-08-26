@@ -17,6 +17,8 @@ export default function HomePage() {
 	const [interval, setIntervalSecs] = useState(5);
 	const [patterns, setPatterns] = useState<PatternID[]>(PATTERNS.map((p) => p.id));
 	const [autoDaub, setAutoDaub] = useState(false);
+	const [entryAmount, setEntryAmount] = useState(0);
+	const [prizeAmounts, setPrizeAmounts] = useState<Record<string, number>>({});
 	const [joinCode, setJoinCode] = useState('');
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -58,6 +60,8 @@ export default function HomePage() {
 				autoIntervalSecs: interval,
 				patterns,
 				autoDaub,
+				entryAmount,
+				prizeAmounts,
 			});
 			router.push(`/game/${game.id}`);
 		} catch (createError) {
@@ -191,19 +195,50 @@ export default function HomePage() {
 						</>
 					)}
 
-					<span className="field-label">Winning patterns</span>
-					<div className="chip-row chip-wrap">
-						{PATTERNS.map((pattern) => (
-							<button
-								key={pattern.id}
-								type="button"
-								className={`chip${patterns.includes(pattern.id) ? ' chip-on' : ''}`}
-								onClick={() => togglePattern(pattern.id)}
-								title={pattern.description}
-							>
-								{pattern.label}
-							</button>
-						))}
+					<span className="field-label">Entry per player (₹)</span>
+					<input
+						type="number"
+						className="text-input"
+						value={entryAmount || ''}
+						onChange={(e) => setEntryAmount(Math.max(0, Number(e.target.value) || 0))}
+						placeholder="0"
+						min={0}
+					/>
+
+					<span className="field-label">Winning patterns & prizes</span>
+					<div className="prize-config">
+						{PATTERNS.map((pattern) => {
+							const on = patterns.includes(pattern.id);
+							return (
+								<div className="prize-config-row" key={pattern.id}>
+									<button
+										type="button"
+										className={`chip${on ? ' chip-on' : ''}`}
+										onClick={() => togglePattern(pattern.id)}
+										title={pattern.description}
+									>
+										{pattern.label}
+									</button>
+									<div className="prize-amount">
+										<span className="prize-amount-cur">₹</span>
+										<input
+											type="number"
+											className="prize-amount-input"
+											value={prizeAmounts[pattern.id] || ''}
+											onChange={(e) =>
+												setPrizeAmounts((prev) => ({
+													...prev,
+													[pattern.id]: Math.max(0, Number(e.target.value) || 0),
+												}))
+											}
+											placeholder="0"
+											min={0}
+											disabled={!on}
+										/>
+									</div>
+								</div>
+							);
+						})}
 					</div>
 
 					<span className="field-label">Auto-mark called numbers</span>
