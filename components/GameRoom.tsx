@@ -43,23 +43,12 @@ export function GameRoom({ gameID }: { gameID: string }) {
 	const [autoDaub, setAutoDaub] = useState(false);
 	const [drawing, setDrawing] = useState(false);
 	const [autoPaused, setAutoPaused] = useState(false);
-	const [isMobile, setIsMobile] = useState(false);
 	const [sheet, setSheet] = useState<'board' | 'prizes' | 'players' | null>(null);
 	const seenPlayers = useRef<Set<string>>(new Set());
 	const gameRef = useRef<GameRow | null>(null);
 	gameRef.current = game;
 
 	const storageKey = myID ? `tambola-daub-${gameID}-${myID}` : null;
-
-	// On mobile, the board / prizes / players move into bottom sheets so the game
-	// screen fits with no page scrollbar.
-	useEffect(() => {
-		const query = window.matchMedia('(max-width: 760px)');
-		const update = () => setIsMobile(query.matches);
-		update();
-		query.addEventListener('change', update);
-		return () => query.removeEventListener('change', update);
-	}, []);
 
 	// Load
 	useEffect(() => {
@@ -442,7 +431,6 @@ export function GameRoom({ gameID }: { gameID: string }) {
 				</button>
 			)}
 
-			{isMobile ? (
 				<div className="arena-mobile">
 					{!isWaiting && callerCard}
 					{ticketPanel}
@@ -481,32 +469,19 @@ export function GameRoom({ gameID }: { gameID: string }) {
 						</div>
 					)}
 				</div>
-			) : (
-				<div className="arena">
-					<div className="arena-center">
-						{!isWaiting && callerCard}
-						{ticketPanel}
-					</div>
-					<div className="arena-side">
-						{!isWaiting && boardCard}
-						{prizesPanel}
-						{playersPanel}
-					</div>
-				</div>
-			)}
 
 			{isWaiting && !isHost && <p className="page-note">Waiting for the host to start…</p>}
 			{finishedPanel}
 
-			{isMobile && sheet === 'board' && (
+			{sheet === 'board' && (
 				<BottomSheet onClose={() => setSheet(null)}>{boardCard}</BottomSheet>
 			)}
-			{isMobile && sheet === 'prizes' && (
+			{sheet === 'prizes' && (
 				<BottomSheet title="Prizes" onClose={() => setSheet(null)}>
 					{prizesPanel}
 				</BottomSheet>
 			)}
-			{isMobile && sheet === 'players' && (
+			{sheet === 'players' && (
 				<BottomSheet title="Players" onClose={() => setSheet(null)}>
 					{playersPanel}
 				</BottomSheet>

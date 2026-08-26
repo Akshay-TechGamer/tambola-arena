@@ -1307,3 +1307,27 @@ button {
 		margin: 0;
 	}
 }
+
+/* ---------- Unified layout centered on desktop (buttons + centered modals) ---------- */
+
+@media (min-width: 761px) {
+	.arena-mobile {
+		max-width: 600px;
+		margin: 0 auto;
+	}
+
+	.arena-mobile .caller-card {
+		padding: 16px;
+	}
+
+	.arena-mobile .current-circle {
+		width: 118px;
+		height: 118px;
+		font-size: 3.6rem;
+	}
+
+	/* Recent calls are in the Board sheet — keep the caller compact */
+	.arena-mobile .recent-calls {
+		display: none;
+	}
+}
