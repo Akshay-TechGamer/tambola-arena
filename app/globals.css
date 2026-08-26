@@ -909,9 +909,9 @@ button {
 	}
 
 	.current-circle {
-		width: 100px;
-		height: 100px;
-		font-size: 3.1rem;
+		width: 92px;
+		height: 92px;
+		font-size: 2.9rem;
 	}
 
 	.caller-card .recent-calls {
@@ -1081,12 +1081,16 @@ button {
 
 .claim-strip {
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
+	flex-wrap: wrap;
 	gap: 8px;
 }
 
 .claim-big {
+	flex: 1 1 150px;
 	margin: 0;
+	padding: 10px 14px;
+	font-size: 0.95rem;
 }
 
 .mobile-bar {
@@ -1221,7 +1225,7 @@ button {
 	.arena-center .current-circle {
 		width: 104px;
 		height: 104px;
-		font-size: 3.1rem;
+		font-size: 2.9rem;
 	}
 
 	.arena-center .caller-label {
@@ -1321,9 +1325,9 @@ button {
 	}
 
 	.arena-mobile .current-circle {
-		width: 106px;
-		height: 106px;
-		font-size: 3.3rem;
+		width: 96px;
+		height: 96px;
+		font-size: 3.05rem;
 	}
 
 	/* Recent calls are in the Board sheet — keep the caller compact */
@@ -1368,5 +1372,59 @@ button {
 	100% {
 		opacity: 0;
 		transform: translate(-50%, -12px);
+	}
+}
+
+/* ---------- Claim strip: compact pills so a claimable never adds a scrollbar ---------- */
+
+.claim-strip {
+	justify-content: center;
+	gap: 8px;
+}
+
+.claim-big {
+	flex: 0 1 auto;
+	padding: 9px 18px;
+	font-size: 0.92rem;
+	white-space: nowrap;
+	margin: 0;
+}
+
+/* Reclaim the height the claim strip needs: drop the "CURRENT NUMBER" label
+   and tighten the caller (the big circle already reads as the current number). */
+.arena-mobile .caller-card .caller-label {
+	display: none;
+}
+
+.arena-mobile .caller-card {
+	padding: 12px 16px;
+}
+
+.arena-mobile {
+	gap: 10px;
+}
+
+/* Reclaim height so a claimable never causes a scroll, even on small phones */
+@media (max-width: 720px) {
+	.room-head {
+		margin-bottom: 8px;
+	}
+
+	.room-head .game-subtitle {
+		display: none;
+	}
+
+	.room-title {
+		font-size: 1.4rem;
+	}
+}
+
+@media (min-width: 761px) {
+	.room-head {
+		margin-bottom: 10px;
+	}
+
+	.room-head .game-subtitle {
+		display: none;
 	}
 }

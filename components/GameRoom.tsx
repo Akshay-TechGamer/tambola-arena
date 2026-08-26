@@ -43,7 +43,7 @@ export function GameRoom({ gameID }: { gameID: string }) {
 	const [autoDaub, setAutoDaub] = useState(false);
 	const [drawing, setDrawing] = useState(false);
 	const [autoPaused, setAutoPaused] = useState(false);
-	const [sheet, setSheet] = useState<'board' | 'prizes' | 'players' | null>(null);
+	const [sheet, setSheet] = useState<'board' | 'prizes' | 'players' | 'results' | null>(null);
 
 	// Win announcements pop as a brief toast, then fade (saves the banner row).
 	useEffect(() => {
@@ -53,6 +53,13 @@ export function GameRoom({ gameID }: { gameID: string }) {
 		const timer = setTimeout(() => setWinToast(null), 4500);
 		return () => clearTimeout(timer);
 	}, [winToast]);
+
+	// When the game finishes, pop the results modal.
+	useEffect(() => {
+		if (game?.status === 'finished') {
+			setSheet('results');
+		}
+	}, [game?.status]);
 	const seenPlayers = useRef<Set<string>>(new Set());
 	const gameRef = useRef<GameRow | null>(null);
 	gameRef.current = game;
@@ -391,7 +398,7 @@ export function GameRoom({ gameID }: { gameID: string }) {
 		</section>
 	);
 
-	const finishedPanel = isFinished && (
+	const resultsPanel = (
 		<section className="panel">
 			<h2 className="panel-title">🏆 Final results</h2>
 			{claims.filter((c) => c.status === 'won').length === 0 ? (
@@ -459,25 +466,30 @@ export function GameRoom({ gameID }: { gameID: string }) {
 									className="btn btn-primary claim-big"
 									onClick={() => onClaim(id)}
 								>
-									🏆 Claim {patternLabel(id)}
+									🏆 {patternLabel(id)}
 								</button>
 							))}
 						</div>
 					)}
 					{claimError && <p className="form-error">⚠ {claimError}</p>}
-					{!isFinished && (
+					{!isWaiting && (
 						<div className="mobile-bar">
-							{!isWaiting && (
-								<button type="button" className="mb-btn" onClick={() => setSheet('board')}>
-									<span className="mb-icon">▦</span>
-									<span>Board</span>
+							<button type="button" className="mb-btn" onClick={() => setSheet('board')}>
+								<span className="mb-icon">▦</span>
+								<span>Board</span>
+							</button>
+							{isFinished ? (
+								<button type="button" className="mb-btn" onClick={() => setSheet('results')}>
+									<span className="mb-icon">🏆</span>
+									<span>Results</span>
+								</button>
+							) : (
+								<button type="button" className="mb-btn" onClick={() => setSheet('prizes')}>
+									<span className="mb-icon">🏆</span>
+									<span>Prizes</span>
+									{claimables.length > 0 && <span className="mb-badge" aria-hidden="true" />}
 								</button>
 							)}
-							<button type="button" className="mb-btn" onClick={() => setSheet('prizes')}>
-								<span className="mb-icon">🏆</span>
-								<span>Prizes</span>
-								{claimables.length > 0 && <span className="mb-badge" aria-hidden="true" />}
-							</button>
 							<button type="button" className="mb-btn" onClick={() => setSheet('players')}>
 								<span className="mb-icon">👥</span>
 								<span>Players</span>
@@ -487,7 +499,6 @@ export function GameRoom({ gameID }: { gameID: string }) {
 				</div>
 
 			{isWaiting && !isHost && <p className="page-note">Waiting for the host to start…</p>}
-			{finishedPanel}
 
 			{sheet === 'board' && (
 				<BottomSheet onClose={() => setSheet(null)}>{boardCard}</BottomSheet>
@@ -500,6 +511,11 @@ export function GameRoom({ gameID }: { gameID: string }) {
 			{sheet === 'players' && (
 				<BottomSheet title="Players" onClose={() => setSheet(null)}>
 					{playersPanel}
+				</BottomSheet>
+			)}
+			{sheet === 'results' && (
+				<BottomSheet title="Final results" onClose={() => setSheet(null)}>
+					{resultsPanel}
 				</BottomSheet>
 			)}
 		</div>
