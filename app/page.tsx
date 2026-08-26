@@ -210,14 +210,18 @@ export default function HomePage() {
 						{PATTERNS.map((pattern) => {
 							const on = patterns.includes(pattern.id);
 							return (
-								<div className="prize-config-row" key={pattern.id}>
+								<div
+									className={`prize-config-row${on ? ' prize-row-on' : ''}`}
+									key={pattern.id}
+								>
 									<button
 										type="button"
-										className={`chip${on ? ' chip-on' : ''}`}
+										className="prize-row-toggle"
 										onClick={() => togglePattern(pattern.id)}
 										title={pattern.description}
 									>
-										{pattern.label}
+										<span className="prize-dot" />
+										<span className="prize-row-name">{pattern.label}</span>
 									</button>
 									<div className="prize-amount">
 										<span className="prize-amount-cur">₹</span>

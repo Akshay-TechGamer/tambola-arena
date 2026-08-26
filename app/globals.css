@@ -1535,11 +1535,57 @@ button {
 	display: flex;
 	align-items: center;
 	gap: 10px;
+	padding: 10px 12px;
+	background: var(--surface-low);
+	border: 1px solid var(--surface-variant);
+	border-radius: 12px;
+	transition: border-color 0.15s ease, background 0.15s ease;
 }
 
-.prize-config-row .chip {
+.prize-config-row.prize-row-on {
+	background: #fff6ec;
+	border-color: rgba(255, 153, 51, 0.45);
+}
+
+.prize-row-toggle {
+	display: flex;
+	align-items: center;
+	gap: 10px;
 	flex: 1;
+	min-width: 0;
+	padding: 0;
+	background: none;
+	border: none;
 	text-align: left;
+	cursor: pointer;
+	font: inherit;
+}
+
+.prize-dot {
+	flex: 0 0 auto;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: var(--outline-variant);
+	transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.prize-row-on .prize-dot {
+	background: var(--primary-container);
+	box-shadow: 0 0 0 3px rgba(255, 153, 51, 0.22);
+}
+
+.prize-row-name {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-weight: 700;
+	color: var(--on-surface-variant);
+}
+
+.prize-row-on .prize-row-name {
+	color: var(--on-surface);
 }
 
 .prize-amount {
