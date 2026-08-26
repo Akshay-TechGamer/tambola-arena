@@ -447,6 +447,7 @@ export type Database = {
       }
       tambola_games: {
         Row: {
+          auto_daub: boolean
           auto_interval_secs: number
           call_mode: Database["public"]["Enums"]["tambola_call_mode"]
           called_numbers: number[]
@@ -460,6 +461,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          auto_daub?: boolean
           auto_interval_secs?: number
           call_mode?: Database["public"]["Enums"]["tambola_call_mode"]
           called_numbers?: number[]
@@ -473,6 +475,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          auto_daub?: boolean
           auto_interval_secs?: number
           call_mode?: Database["public"]["Enums"]["tambola_call_mode"]
           called_numbers?: number[]

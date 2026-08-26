@@ -1089,3 +1089,62 @@ button {
 	background: var(--tertiary);
 	box-shadow: 0 0 6px var(--tertiary-container);
 }
+
+/* ---------- Configure hint + centered modal on desktop ---------- */
+
+.config-hint {
+	font-size: 0.8rem;
+	color: var(--on-surface-variant);
+	margin: 8px 2px 0;
+	line-height: 1.4;
+}
+
+/* Compact, centered home on wider screens */
+.home {
+	max-width: 720px;
+	margin: 0 auto;
+}
+
+/* On desktop the bottom sheet becomes a centered pop-in modal */
+@media (min-width: 761px) {
+	.sheet-backdrop {
+		align-items: center;
+		justify-content: center;
+	}
+
+	.sheet {
+		width: auto;
+		min-width: 430px;
+		max-width: 470px;
+		max-height: 88vh;
+		border: 1px solid var(--surface-variant);
+		border-top: 3px solid var(--primary-container);
+		border-radius: 18px;
+		animation: sheet-pop 0.2s ease;
+	}
+
+	.sheet-body {
+		padding: 6px 20px 20px;
+	}
+}
+
+@keyframes sheet-pop {
+	from {
+		opacity: 0;
+		transform: scale(0.96);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@media (min-width: 761px) {
+	.sheet-handle {
+		display: none;
+	}
+
+	.sheet-grip {
+		padding: 14px 0 4px;
+	}
+}

@@ -39,7 +39,8 @@ export function GameRoom({ gameID }: { gameID: string }) {
 	const [myID, setMyID] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
 	const [daubed, setDaubed] = useState<Set<number>>(new Set());
-	const [autoDaub, setAutoDaub] = useState(true);
+	// Host-controlled; off unless the host enabled auto-mark for the game.
+	const [autoDaub, setAutoDaub] = useState(false);
 	const [drawing, setDrawing] = useState(false);
 	const [autoPaused, setAutoPaused] = useState(false);
 	const [isMobile, setIsMobile] = useState(false);
@@ -80,6 +81,7 @@ export function GameRoom({ gameID }: { gameID: string }) {
 				}
 				seenPlayers.current = new Set(playerList.map((p) => p.user_id));
 				setGame(row);
+				setAutoDaub(row.auto_daub);
 				setPlayers(playerList);
 				setTickets(myTickets);
 				setClaims(claimList);
@@ -313,7 +315,7 @@ export function GameRoom({ gameID }: { gameID: string }) {
 		<section className="panel">
 			<div className="ticket-head">
 				<h2 className="panel-title">Your ticket</h2>
-				{!isWaiting && (
+				{!isWaiting && game.auto_daub && (
 					<label className="auto-daub">
 						<input
 							type="checkbox"

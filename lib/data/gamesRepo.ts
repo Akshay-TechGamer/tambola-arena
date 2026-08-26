@@ -22,6 +22,7 @@ export interface CreateGameInput {
 	callMode: 'auto' | 'manual';
 	autoIntervalSecs: number;
 	patterns: PatternID[];
+	autoDaub: boolean;
 }
 
 export async function createGame(input: CreateGameInput): Promise<GameRow> {
@@ -34,6 +35,7 @@ export async function createGame(input: CreateGameInput): Promise<GameRow> {
 			call_mode: input.callMode,
 			auto_interval_secs: input.autoIntervalSecs,
 			enabled_patterns: input.patterns,
+			auto_daub: input.autoDaub,
 		})
 		.select()
 		.single();

@@ -16,6 +16,7 @@ export default function HomePage() {
 	const [callMode, setCallMode] = useState<'manual' | 'auto'>('manual');
 	const [interval, setIntervalSecs] = useState(5);
 	const [patterns, setPatterns] = useState<PatternID[]>(PATTERNS.map((p) => p.id));
+	const [autoDaub, setAutoDaub] = useState(false);
 	const [joinCode, setJoinCode] = useState('');
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -56,6 +57,7 @@ export default function HomePage() {
 				callMode,
 				autoIntervalSecs: interval,
 				patterns,
+				autoDaub,
 			});
 			router.push(`/game/${game.id}`);
 		} catch (createError) {
@@ -93,7 +95,7 @@ export default function HomePage() {
 		}
 	};
 
-	const configSummary = `${callMode === 'auto' ? `Auto · ${interval}s` : 'Manual'} · ${patterns.length}/${PATTERNS.length} patterns`;
+	const configSummary = `${callMode === 'auto' ? `Auto · ${interval}s` : 'Manual'} · ${patterns.length}/${PATTERNS.length} patterns · Auto-mark ${autoDaub ? 'on' : 'off'}`;
 
 	return (
 		<div className="home">
@@ -203,6 +205,28 @@ export default function HomePage() {
 							</button>
 						))}
 					</div>
+
+					<span className="field-label">Auto-mark called numbers</span>
+					<div className="chip-row">
+						<button
+							type="button"
+							className={`chip${!autoDaub ? ' chip-on' : ''}`}
+							onClick={() => setAutoDaub(false)}
+						>
+							Off (players mark)
+						</button>
+						<button
+							type="button"
+							className={`chip${autoDaub ? ' chip-on' : ''}`}
+							onClick={() => setAutoDaub(true)}
+						>
+							On (auto)
+						</button>
+					</div>
+					<p className="config-hint">
+						Off by default — everyone marks their own ticket. When off, the auto-mark option is
+						hidden for all players.
+					</p>
 
 					<button
 						type="button"
