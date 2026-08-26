@@ -355,20 +355,17 @@ export function GameRoom({ gameID }: { gameID: string }) {
 							key={id}
 							className={`prize${winner ? ' prize-won' : ''}${claimable ? ' prize-claimable' : ''}`}
 						>
-							<div>
+							<span className="prize-icon">{winner ? '✓' : '🏆'}</span>
+							<div className="prize-info">
 								<div className="prize-name">{patternLabel(id)}</div>
 								<div className="prize-status">
-									{winner ? `Claimed by ${winner}` : 'Available'}
+									{winner ? `Claimed by ${winner}` : claimable ? 'Ready to claim!' : 'Available'}
 								</div>
 							</div>
-							{winner ? (
-								<span className="prize-check">✓</span>
-							) : claimable ? (
+							{claimable && (
 								<button type="button" className="claim-btn" onClick={() => onClaim(id)}>
 									Claim
 								</button>
-							) : (
-								<span className="claim-btn claim-off">Claim</span>
 							)}
 						</li>
 					);

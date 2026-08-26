@@ -682,12 +682,29 @@ button {
 .prize {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
-	gap: 10px;
-	padding: 12px;
+	gap: 11px;
+	padding: 9px 12px;
 	background: var(--surface);
 	border: 1px solid var(--surface-variant);
 	border-radius: 12px;
+}
+
+.prize-icon {
+	flex: 0 0 auto;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.95rem;
+	background: var(--surface-low);
+	border: 1px solid var(--surface-variant);
+}
+
+.prize-info {
+	flex: 1 1 auto;
+	min-width: 0;
 }
 
 .prize-claimable {
@@ -696,9 +713,21 @@ button {
 	box-shadow: var(--shadow-sm);
 }
 
+.prize-claimable .prize-icon {
+	background: var(--surface);
+	border-color: transparent;
+}
+
 .prize-won {
-	opacity: 0.65;
 	background: var(--surface-low);
+	opacity: 0.75;
+}
+
+.prize-won .prize-icon {
+	background: var(--tertiary);
+	border-color: var(--tertiary);
+	color: #fff;
+	font-weight: 800;
 }
 
 .prize-name {
