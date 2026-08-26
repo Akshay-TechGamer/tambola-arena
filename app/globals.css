@@ -1470,3 +1470,55 @@ button {
 		padding: 12px;
 	}
 }
+
+/* ---------- Confetti (winner celebration) ---------- */
+
+.confetti {
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	z-index: 100;
+	overflow: hidden;
+}
+
+.confetti-piece {
+	position: absolute;
+	top: -18px;
+	border-radius: 2px;
+	opacity: 0;
+	will-change: transform;
+	animation-name: confetti-fall;
+	animation-timing-function: cubic-bezier(0.35, 0.15, 0.5, 1);
+	animation-iteration-count: 1;
+	animation-fill-mode: forwards;
+}
+
+@keyframes confetti-fall {
+	0% {
+		transform: translate(0, -18px) rotate(0deg);
+		opacity: 1;
+	}
+	100% {
+		transform: translate(var(--drift, 0), 104vh) rotate(var(--rot, 540deg));
+		opacity: 0.85;
+	}
+}
+
+/* A little bounce on the results trophy */
+.sheet .panel-title {
+	animation: trophy-pop 0.5s ease;
+}
+
+@keyframes trophy-pop {
+	0% {
+		transform: scale(0.8);
+		opacity: 0;
+	}
+	60% {
+		transform: scale(1.08);
+	}
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+}

@@ -24,6 +24,7 @@ import { ticketNumbers } from '@/lib/game/ticket';
 import { TicketView } from '@/components/TicketView';
 import { CalledBoard } from '@/components/CalledBoard';
 import { BottomSheet } from '@/components/BottomSheet';
+import { Confetti } from '@/components/Confetti';
 
 type Phase = 'loading' | 'error' | 'ready';
 
@@ -450,6 +451,8 @@ export function GameRoom({ gameID }: { gameID: string }) {
 					{winToast.text}
 				</div>
 			)}
+
+			{isFinished && <Confetti />}
 
 			{isHost && isWaiting && (
 				<button type="button" className="btn btn-primary btn-block" onClick={onStart}>
