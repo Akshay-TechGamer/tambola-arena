@@ -407,19 +407,16 @@ export function GameRoom({ gameID }: { gameID: string }) {
 	);
 
 	const wonClaims = claims.filter((c) => c.status === 'won');
-	const winnings = Object.values(
-		wonClaims.reduce(
-			(acc, c) => {
-				const amount = prizeAmounts[c.pattern] ?? 0;
-				const row = acc[c.username] ?? { username: c.username, total: 0, count: 0 };
-				row.total += amount;
-				row.count += 1;
-				acc[c.username] = row;
-				return acc;
-			},
-			{} as Record<string, { username: string; total: number; count: number }>,
-		),
-	).sort((a, b) => b.total - a.total);
+	const winnings = players
+		.map((pl) => {
+			const mine = wonClaims.filter((c) => c.user_id === pl.user_id);
+			return {
+				username: pl.username,
+				total: mine.reduce((sum, c) => sum + (prizeAmounts[c.pattern] ?? 0), 0),
+				count: mine.length,
+			};
+		})
+		.sort((a, b) => b.total - a.total);
 	const totalWon = wonClaims.reduce((sum, c) => sum + (prizeAmounts[c.pattern] ?? 0), 0);
 	const pot = game.entry_amount * players.length;
 
