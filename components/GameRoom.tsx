@@ -34,7 +34,7 @@ export function GameRoom({ gameID }: { gameID: string }) {
 	const [players, setPlayers] = useState<PlayerRow[]>([]);
 	const [tickets, setTickets] = useState<MyTicket[]>([]);
 	const [claims, setClaims] = useState<ClaimRow[]>([]);
-	const [announce, setAnnounce] = useState<string | null>(null);
+	const [winToast, setWinToast] = useState<{ text: string; id: number } | null>(null);
 	const [claimError, setClaimError] = useState<string | null>(null);
 	const [myID, setMyID] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
@@ -44,6 +44,15 @@ export function GameRoom({ gameID }: { gameID: string }) {
 	const [drawing, setDrawing] = useState(false);
 	const [autoPaused, setAutoPaused] = useState(false);
 	const [sheet, setSheet] = useState<'board' | 'prizes' | 'players' | null>(null);
+
+	// Win announcements pop as a brief toast, then fade (saves the banner row).
+	useEffect(() => {
+		if (!winToast) {
+			return;
+		}
+		const timer = setTimeout(() => setWinToast(null), 4500);
+		return () => clearTimeout(timer);
+	}, [winToast]);
 	const seenPlayers = useRef<Set<string>>(new Set());
 	const gameRef = useRef<GameRow | null>(null);
 	gameRef.current = game;
@@ -112,7 +121,10 @@ export function GameRoom({ gameID }: { gameID: string }) {
 					current.some((c) => c.id === claim.id) ? current : [...current, claim],
 				);
 				if (claim.status === 'won') {
-					setAnnounce(`🎉 ${claim.username} won ${patternLabel(claim.pattern as PatternID)}!`);
+					setWinToast((prev) => ({
+						text: `🎉 ${claim.username} won ${patternLabel(claim.pattern as PatternID)}`,
+						id: (prev ? prev.id : 0) + 1,
+					}));
 				}
 			},
 		});
@@ -423,7 +435,11 @@ export function GameRoom({ gameID }: { gameID: string }) {
 				)}
 			</div>
 
-			{announce && !isWaiting && <div className="announce">{announce}</div>}
+			{winToast && (
+				<div className="win-toast" key={winToast.id} role="status">
+					{winToast.text}
+				</div>
+			)}
 
 			{isHost && isWaiting && (
 				<button type="button" className="btn btn-primary btn-block" onClick={onStart}>

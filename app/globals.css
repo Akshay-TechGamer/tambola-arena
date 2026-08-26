@@ -1312,7 +1312,7 @@ button {
 
 @media (min-width: 761px) {
 	.arena-mobile {
-		max-width: 600px;
+		max-width: 480px;
 		margin: 0 auto;
 	}
 
@@ -1321,13 +1321,52 @@ button {
 	}
 
 	.arena-mobile .current-circle {
-		width: 118px;
-		height: 118px;
-		font-size: 3.6rem;
+		width: 106px;
+		height: 106px;
+		font-size: 3.3rem;
 	}
 
 	/* Recent calls are in the Board sheet — keep the caller compact */
 	.arena-mobile .recent-calls {
 		display: none;
+	}
+}
+
+/* ---------- Win toast (replaces the announce banner) ---------- */
+
+.win-toast {
+	position: fixed;
+	top: 72px;
+	left: 50%;
+	z-index: 95;
+	padding: 11px 22px;
+	background: var(--tertiary);
+	color: #fff;
+	border-radius: 999px;
+	font-family: var(--font-display);
+	font-weight: 800;
+	font-size: 0.98rem;
+	white-space: nowrap;
+	box-shadow: 0 10px 34px rgba(0, 110, 42, 0.38);
+	animation: win-toast 4.5s ease forwards;
+	pointer-events: none;
+}
+
+@keyframes win-toast {
+	0% {
+		opacity: 0;
+		transform: translate(-50%, -12px);
+	}
+	7% {
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+	90% {
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+	100% {
+		opacity: 0;
+		transform: translate(-50%, -12px);
 	}
 }
