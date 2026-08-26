@@ -306,8 +306,11 @@ export function GameRoom({ gameID }: { gameID: string }) {
 
 	const boardCard = (
 		<div className="board-card">
+			<div className="board-head">
+				<h2 className="panel-title">Called numbers</h2>
+				<span className="called-count">{calledSet.size} / 90</span>
+			</div>
 			<CalledBoard called={calledSet} current={game.current_number} />
-			<p className="called-count">{calledSet.size} / 90 called</p>
 		</div>
 	);
 
@@ -485,10 +488,10 @@ export function GameRoom({ gameID }: { gameID: string }) {
 				<div className="arena">
 					<div className="arena-center">
 						{!isWaiting && callerCard}
-						{!isWaiting && boardCard}
 						{ticketPanel}
 					</div>
 					<div className="arena-side">
+						{!isWaiting && boardCard}
 						{prizesPanel}
 						{playersPanel}
 					</div>
@@ -499,9 +502,7 @@ export function GameRoom({ gameID }: { gameID: string }) {
 			{finishedPanel}
 
 			{isMobile && sheet === 'board' && (
-				<BottomSheet title="Called numbers" onClose={() => setSheet(null)}>
-					{boardCard}
-				</BottomSheet>
+				<BottomSheet onClose={() => setSheet(null)}>{boardCard}</BottomSheet>
 			)}
 			{isMobile && sheet === 'prizes' && (
 				<BottomSheet title="Prizes" onClose={() => setSheet(null)}>
