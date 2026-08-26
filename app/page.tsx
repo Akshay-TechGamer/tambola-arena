@@ -6,6 +6,7 @@ import { ensureSignedIn, suggestedName } from '@/lib/data/authRepo';
 import { addPlayer, createGame, findGameByInviteCode } from '@/lib/data/gamesRepo';
 import { generateInviteCode, isValidInviteCode, normalizeInviteCode } from '@/lib/game/invite';
 import { PATTERNS, type PatternID } from '@/lib/game/patterns';
+import { BottomSheet } from '@/components/BottomSheet';
 
 const AUTO_INTERVALS = [3, 5, 8, 10];
 
@@ -18,6 +19,7 @@ export default function HomePage() {
 	const [joinCode, setJoinCode] = useState('');
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [configOpen, setConfigOpen] = useState(false);
 
 	// Prefill the name once we know who the user is.
 	useEffect(() => {
@@ -39,7 +41,8 @@ export default function HomePage() {
 			return;
 		}
 		if (patterns.length === 0) {
-			setError('Pick at least one winning pattern');
+			setError('Pick at least one winning pattern in Configure');
+			setConfigOpen(true);
 			return;
 		}
 		setBusy(true);
@@ -90,6 +93,8 @@ export default function HomePage() {
 		}
 	};
 
+	const configSummary = `${callMode === 'auto' ? `Auto · ${interval}s` : 'Manual'} · ${patterns.length}/${PATTERNS.length} patterns`;
+
 	return (
 		<div className="home">
 			<h1 className="home-title">🎡 Tambola Arena</h1>
@@ -109,7 +114,45 @@ export default function HomePage() {
 			<div className="panels">
 				<section className="panel">
 					<h2 className="panel-title">Host a game</h2>
+					<button
+						type="button"
+						className="config-btn"
+						onClick={() => setConfigOpen(true)}
+					>
+						<span className="config-btn-main">⚙ Configure</span>
+						<span className="config-btn-sub">{configSummary}</span>
+					</button>
+					<button
+						type="button"
+						className="btn btn-primary btn-block"
+						onClick={create}
+						disabled={busy}
+					>
+						{busy ? 'Creating…' : 'Create game'}
+					</button>
+				</section>
 
+				<section className="panel">
+					<h2 className="panel-title">Join a game</h2>
+					<span className="field-label">Invite code</span>
+					<input
+						className="text-input code-input"
+						value={joinCode}
+						onChange={(e) => setJoinCode(e.target.value)}
+						onKeyDown={(e) => e.key === 'Enter' && join()}
+						placeholder="HOUS12"
+						maxLength={6}
+					/>
+					<button type="button" className="btn btn-block" onClick={join} disabled={busy}>
+						{busy ? 'Joining…' : 'Join game'}
+					</button>
+				</section>
+			</div>
+
+			{error && <p className="form-error">⚠ {error}</p>}
+
+			{configOpen && (
+				<BottomSheet title="Game settings" onClose={() => setConfigOpen(false)}>
 					<span className="field-label">Number calling</span>
 					<div className="chip-row">
 						<button
@@ -161,29 +204,15 @@ export default function HomePage() {
 						))}
 					</div>
 
-					<button type="button" className="btn btn-primary btn-block" onClick={create} disabled={busy}>
-						{busy ? 'Creating…' : 'Create game'}
+					<button
+						type="button"
+						className="btn btn-primary btn-block"
+						onClick={() => setConfigOpen(false)}
+					>
+						Done
 					</button>
-				</section>
-
-				<section className="panel">
-					<h2 className="panel-title">Join a game</h2>
-					<span className="field-label">Invite code</span>
-					<input
-						className="text-input code-input"
-						value={joinCode}
-						onChange={(e) => setJoinCode(e.target.value)}
-						onKeyDown={(e) => e.key === 'Enter' && join()}
-						placeholder="HOUS12"
-						maxLength={6}
-					/>
-					<button type="button" className="btn btn-block" onClick={join} disabled={busy}>
-						{busy ? 'Joining…' : 'Join game'}
-					</button>
-				</section>
-			</div>
-
-			{error && <p className="form-error">⚠ {error}</p>}
+				</BottomSheet>
+			)}
 		</div>
 	);
 }

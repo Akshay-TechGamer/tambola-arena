@@ -23,6 +23,7 @@ import { patternLabel, validateClaim, type PatternID } from '@/lib/game/patterns
 import { ticketNumbers } from '@/lib/game/ticket';
 import { TicketView } from '@/components/TicketView';
 import { CalledBoard } from '@/components/CalledBoard';
+import { BottomSheet } from '@/components/BottomSheet';
 
 type Phase = 'loading' | 'error' | 'ready';
 
@@ -41,11 +42,23 @@ export function GameRoom({ gameID }: { gameID: string }) {
 	const [autoDaub, setAutoDaub] = useState(true);
 	const [drawing, setDrawing] = useState(false);
 	const [autoPaused, setAutoPaused] = useState(false);
+	const [isMobile, setIsMobile] = useState(false);
+	const [sheet, setSheet] = useState<'board' | 'prizes' | 'players' | null>(null);
 	const seenPlayers = useRef<Set<string>>(new Set());
 	const gameRef = useRef<GameRow | null>(null);
 	gameRef.current = game;
 
 	const storageKey = myID ? `tambola-daub-${gameID}-${myID}` : null;
+
+	// On mobile, the board / prizes / players move into bottom sheets so the game
+	// screen fits with no page scrollbar.
+	useEffect(() => {
+		const query = window.matchMedia('(max-width: 760px)');
+		const update = () => setIsMobile(query.matches);
+		update();
+		query.addEventListener('change', update);
+		return () => query.removeEventListener('change', update);
+	}, []);
 
 	// Load
 	useEffect(() => {
@@ -251,6 +264,149 @@ export function GameRoom({ gameID }: { gameID: string }) {
 
 	const isWaiting = game.status === 'waiting';
 	const isFinished = game.status === 'finished';
+	const enabledPatterns = game.enabled_patterns as PatternID[];
+
+	const claimables =
+		!isWaiting && !isFinished
+			? enabledPatterns.filter((id) => !wonBy.get(id) && satisfyingTicket(id) !== null)
+			: [];
+
+	const callerCard = (
+		<div className="caller-card">
+			<div className="caller-label">Current Number</div>
+			<div className="current-circle">{game.current_number ?? '—'}</div>
+			<div className="recent-calls">
+				<div className="caller-label">Recent Calls</div>
+				<div className="recent-row">
+					{recentCalls.length === 0 && <span className="recent-empty">—</span>}
+					{recentCalls.map((n) => (
+						<span className="recent-chip" key={n}>
+							{n}
+						</span>
+					))}
+				</div>
+			</div>
+			{isHost && !isFinished && (
+				<div className="host-controls">
+					{game.call_mode === 'manual' ? (
+						<button type="button" className="btn btn-primary" onClick={onDraw} disabled={drawing}>
+							{drawing ? 'Drawing…' : '🎲 Next number'}
+						</button>
+					) : (
+						<button type="button" className="btn" onClick={() => setAutoPaused((p) => !p)}>
+							{autoPaused ? '▶ Resume auto-call' : '⏸ Pause auto-call'}
+						</button>
+					)}
+				</div>
+			)}
+		</div>
+	);
+
+	const boardCard = (
+		<div className="board-card">
+			<CalledBoard called={calledSet} current={game.current_number} />
+			<p className="called-count">{calledSet.size} / 90 called</p>
+		</div>
+	);
+
+	const ticketPanel = (
+		<section className="panel">
+			<div className="ticket-head">
+				<h2 className="panel-title">Your ticket</h2>
+				{!isWaiting && (
+					<label className="auto-daub">
+						<input
+							type="checkbox"
+							checked={autoDaub}
+							onChange={(e) => setAutoDaub(e.target.checked)}
+						/>{' '}
+						Auto-mark
+					</label>
+				)}
+			</div>
+			{tickets.map((ticket) => (
+				<TicketView
+					key={ticket.id}
+					ticket={ticket.numbers}
+					marked={daubed}
+					onCellClick={isWaiting ? undefined : toggleDaub}
+				/>
+			))}
+			{!isWaiting && !autoDaub && (
+				<p className="game-subtitle">Tap a called number to mark it.</p>
+			)}
+		</section>
+	);
+
+	const prizesPanel = (
+		<section className="panel">
+			<h2 className="panel-title">🏆 Prizes</h2>
+			<ul className="pattern-list">
+				{enabledPatterns.map((id) => {
+					const winner = wonBy.get(id);
+					const claimable = !winner && !isWaiting && satisfyingTicket(id) !== null;
+					return (
+						<li
+							key={id}
+							className={`prize${winner ? ' prize-won' : ''}${claimable ? ' prize-claimable' : ''}`}
+						>
+							<div>
+								<div className="prize-name">{patternLabel(id)}</div>
+								<div className="prize-status">
+									{winner ? `Claimed by ${winner}` : 'Available'}
+								</div>
+							</div>
+							{winner ? (
+								<span className="prize-check">✓</span>
+							) : claimable ? (
+								<button type="button" className="claim-btn" onClick={() => onClaim(id)}>
+									Claim
+								</button>
+							) : (
+								<span className="claim-btn claim-off">Claim</span>
+							)}
+						</li>
+					);
+				})}
+			</ul>
+			{claimError && <p className="form-error">⚠ {claimError}</p>}
+		</section>
+	);
+
+	const playersPanel = (
+		<section className="panel">
+			<h2 className="panel-title">Players ({players.length})</h2>
+			<ul className="player-list">
+				{players.map((player) => (
+					<li key={player.user_id}>
+						{player.username}
+						{player.user_id === game.host_id && <span className="host-tag">host</span>}
+						{player.user_id === myID && <span className="you-tag">you</span>}
+					</li>
+				))}
+			</ul>
+		</section>
+	);
+
+	const finishedPanel = isFinished && (
+		<section className="panel">
+			<h2 className="panel-title">🏆 Final results</h2>
+			{claims.filter((c) => c.status === 'won').length === 0 ? (
+				<p className="game-subtitle">No prizes were claimed.</p>
+			) : (
+				<ul className="pattern-list">
+					{claims
+						.filter((c) => c.status === 'won')
+						.map((c) => (
+							<li key={c.id} className="prize-won">
+								<span>{patternLabel(c.pattern as PatternID)}</span>
+								<span className="prize-winner">✓ {c.username}</span>
+							</li>
+						))}
+				</ul>
+			)}
+		</section>
+	);
 
 	return (
 		<div className="room">
@@ -284,147 +440,76 @@ export function GameRoom({ gameID }: { gameID: string }) {
 				</button>
 			)}
 
-			<div className="arena">
-				<div className="arena-center">
-					{!isWaiting && (
-						<div className="caller-card">
-							<div className="caller-label">Current Number</div>
-							<div className="current-circle">{game.current_number ?? '—'}</div>
-							<div className="recent-calls">
-								<div className="caller-label">Recent Calls</div>
-								<div className="recent-row">
-									{recentCalls.length === 0 && <span className="recent-empty">—</span>}
-									{recentCalls.map((n) => (
-										<span className="recent-chip" key={n}>
-											{n}
-										</span>
-									))}
-								</div>
-							</div>
-							{isHost && !isFinished && (
-								<div className="host-controls">
-									{game.call_mode === 'manual' ? (
-										<button
-											type="button"
-											className="btn btn-primary"
-											onClick={onDraw}
-											disabled={drawing}
-										>
-											{drawing ? 'Drawing…' : '🎲 Next number'}
-										</button>
-									) : (
-										<button type="button" className="btn" onClick={() => setAutoPaused((p) => !p)}>
-											{autoPaused ? '▶ Resume auto-call' : '⏸ Pause auto-call'}
-										</button>
-									)}
-								</div>
-							)}
-						</div>
-					)}
-
-					{!isWaiting && (
-						<div className="board-card">
-							<CalledBoard called={calledSet} current={game.current_number} />
-							<p className="called-count">{calledSet.size} / 90 called</p>
-						</div>
-					)}
-
-					<section className="panel">
-						<div className="ticket-head">
-							<h2 className="panel-title">Your ticket</h2>
-							{!isWaiting && (
-								<label className="auto-daub">
-									<input
-										type="checkbox"
-										checked={autoDaub}
-										onChange={(e) => setAutoDaub(e.target.checked)}
-									/>{' '}
-									Auto-mark
-								</label>
-							)}
-						</div>
-						{tickets.map((ticket) => (
-							<TicketView
-								key={ticket.id}
-								ticket={ticket.numbers}
-								marked={daubed}
-								onCellClick={isWaiting ? undefined : toggleDaub}
-							/>
-						))}
-						{!isWaiting && !autoDaub && (
-							<p className="game-subtitle">Tap a called number to mark it.</p>
-						)}
-					</section>
-				</div>
-
-				<div className="arena-side">
-					<section className="panel">
-						<h2 className="panel-title">🏆 Prizes</h2>
-						<ul className="pattern-list">
-							{(game.enabled_patterns as PatternID[]).map((id) => {
-								const winner = wonBy.get(id);
-								const claimable = !winner && !isWaiting && satisfyingTicket(id) !== null;
-								return (
-									<li
-										key={id}
-										className={`prize${winner ? ' prize-won' : ''}${claimable ? ' prize-claimable' : ''}`}
-									>
-										<div>
-											<div className="prize-name">{patternLabel(id)}</div>
-											<div className="prize-status">
-												{winner ? `Claimed by ${winner}` : 'Available'}
-											</div>
-										</div>
-										{winner ? (
-											<span className="prize-check">✓</span>
-										) : claimable ? (
-											<button type="button" className="claim-btn" onClick={() => onClaim(id)}>
-												Claim
-											</button>
-										) : (
-											<span className="claim-btn claim-off">Claim</span>
-										)}
-									</li>
-								);
-							})}
-						</ul>
-						{claimError && <p className="form-error">⚠ {claimError}</p>}
-					</section>
-
-					<section className="panel">
-						<h2 className="panel-title">Players ({players.length})</h2>
-						<ul className="player-list">
-							{players.map((player) => (
-								<li key={player.user_id}>
-									{player.username}
-									{player.user_id === game.host_id && <span className="host-tag">host</span>}
-									{player.user_id === myID && <span className="you-tag">you</span>}
-								</li>
+			{isMobile ? (
+				<div className="arena-mobile">
+					{!isWaiting && callerCard}
+					{ticketPanel}
+					{claimables.length > 0 && (
+						<div className="claim-strip">
+							{claimables.map((id) => (
+								<button
+									key={id}
+									type="button"
+									className="btn btn-primary claim-big"
+									onClick={() => onClaim(id)}
+								>
+									🏆 Claim {patternLabel(id)}
+								</button>
 							))}
-						</ul>
-					</section>
+						</div>
+					)}
+					{claimError && <p className="form-error">⚠ {claimError}</p>}
+					{!isFinished && (
+						<div className="mobile-bar">
+							{!isWaiting && (
+								<button type="button" className="mb-btn" onClick={() => setSheet('board')}>
+									<span className="mb-icon">▦</span>
+									<span>Board</span>
+								</button>
+							)}
+							<button type="button" className="mb-btn" onClick={() => setSheet('prizes')}>
+								<span className="mb-icon">🏆</span>
+								<span>Prizes</span>
+								{claimables.length > 0 && <span className="mb-badge" aria-hidden="true" />}
+							</button>
+							<button type="button" className="mb-btn" onClick={() => setSheet('players')}>
+								<span className="mb-icon">👥</span>
+								<span>Players</span>
+							</button>
+						</div>
+					)}
 				</div>
-			</div>
+			) : (
+				<div className="arena">
+					<div className="arena-center">
+						{!isWaiting && callerCard}
+						{!isWaiting && boardCard}
+						{ticketPanel}
+					</div>
+					<div className="arena-side">
+						{prizesPanel}
+						{playersPanel}
+					</div>
+				</div>
+			)}
 
 			{isWaiting && !isHost && <p className="page-note">Waiting for the host to start…</p>}
-			{isFinished && (
-				<section className="panel">
-					<h2 className="panel-title">🏆 Final results</h2>
-					{claims.filter((c) => c.status === 'won').length === 0 ? (
-						<p className="game-subtitle">No prizes were claimed.</p>
-					) : (
-						<ul className="pattern-list">
-							{claims
-								.filter((c) => c.status === 'won')
-								.map((c) => (
-									<li key={c.id} className="prize-won">
-										<span>{patternLabel(c.pattern as PatternID)}</span>
-										<span className="prize-winner">✓ {c.username}</span>
-									</li>
-								))}
-						</ul>
-					)}
-				</section>
+			{finishedPanel}
+
+			{isMobile && sheet === 'board' && (
+				<BottomSheet title="Called numbers" onClose={() => setSheet(null)}>
+					{boardCard}
+				</BottomSheet>
+			)}
+			{isMobile && sheet === 'prizes' && (
+				<BottomSheet title="Prizes" onClose={() => setSheet(null)}>
+					{prizesPanel}
+				</BottomSheet>
+			)}
+			{isMobile && sheet === 'players' && (
+				<BottomSheet title="Players" onClose={() => setSheet(null)}>
+					{playersPanel}
+				</BottomSheet>
 			)}
 		</div>
 	);
