@@ -469,6 +469,9 @@ export function GameRoom({ gameID }: { gameID: string }) {
 						<b>₹{pot}</b>
 					</div>
 				)}
+					<button type="button" className="btn btn-primary btn-block" onClick={() => { window.location.href = '/'; }}>
+						🎉 New game
+					</button>
 				</>
 			)}
 		</section>
@@ -537,6 +540,11 @@ export function GameRoom({ gameID }: { gameID: string }) {
 						</div>
 					)}
 					{claimError && <p className="form-error">⚠ {claimError}</p>}
+					{isFinished && (
+						<button type="button" className="btn btn-primary btn-block" onClick={() => { window.location.href = '/'; }}>
+							🎉 New game
+						</button>
+					)}
 					{!isWaiting && (
 						<div className="mobile-bar">
 							<button type="button" className="mb-btn" onClick={() => setSheet('board')}>
