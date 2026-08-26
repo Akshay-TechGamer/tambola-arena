@@ -1980,3 +1980,236 @@ button {
 		flex: 1;
 	}
 }
+
+/* ---------- Rules / How to play page ---------- */
+
+.rules-page {
+	max-width: 760px;
+	margin: 0 auto;
+}
+
+.rules-title {
+	font-family: var(--font-display);
+	font-size: 2rem;
+	font-weight: 800;
+	color: var(--primary);
+	margin: 4px 0 6px;
+}
+
+.rules-lead {
+	color: var(--on-surface-variant);
+	margin: 0 0 8px;
+}
+
+.rules-section {
+	margin-top: 20px;
+}
+
+.rules-card {
+	margin-top: 20px;
+	background: var(--surface);
+	border: 1px solid var(--surface-variant);
+	border-radius: 16px;
+	padding: 18px;
+	box-shadow: var(--shadow-sm);
+}
+
+/* The flow — vertical timeline on mobile */
+.rules-flow {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 22px;
+}
+
+.rules-flow::before {
+	content: '';
+	position: absolute;
+	left: 18px;
+	top: 8px;
+	bottom: 8px;
+	width: 2px;
+	background: var(--outline-variant);
+}
+
+.rules-step {
+	position: relative;
+	display: grid;
+	grid-template-columns: 38px 1fr;
+	gap: 14px;
+	align-items: start;
+}
+
+.rules-step-badge {
+	position: relative;
+	z-index: 1;
+	width: 38px;
+	height: 38px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--primary-container);
+	color: var(--on-primary-container);
+	font-family: var(--font-display);
+	font-weight: 800;
+	font-size: 1.05rem;
+}
+
+.rules-step-title {
+	margin: 6px 0 2px;
+	font-weight: 700;
+	color: var(--on-surface);
+}
+
+.rules-step-desc {
+	margin: 0;
+	color: var(--on-surface-variant);
+	font-size: 0.9rem;
+	line-height: 1.5;
+}
+
+/* Your-ticket sample row */
+.rules-ticket-row {
+	display: grid;
+	grid-template-columns: repeat(9, 1fr);
+	gap: 2px;
+	background: var(--outline-variant);
+	padding: 2px;
+	border-radius: 10px;
+	margin: 14px 0 10px;
+	max-width: 440px;
+}
+
+.rt-cell {
+	aspect-ratio: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--surface);
+	font-family: var(--font-num);
+	font-weight: 700;
+	font-size: 0.8rem;
+	color: var(--on-surface);
+	position: relative;
+	border-radius: 3px;
+}
+
+.rt-blank {
+	background: var(--surface-low);
+}
+
+.rt-stamped::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	width: 80%;
+	height: 80%;
+	background: var(--tertiary);
+	opacity: 0.3;
+	border: 1px solid var(--tertiary-container);
+	border-radius: 50%;
+	z-index: 0;
+}
+
+.rules-legend {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 0.8rem;
+	color: var(--on-surface-variant);
+}
+
+.rules-legend-dot {
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: var(--tertiary);
+	opacity: 0.3;
+	border: 1px solid var(--tertiary-container);
+}
+
+/* Winning patterns */
+.rules-patterns {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.rules-pattern {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	background: var(--surface);
+	border: 1px solid var(--surface-variant);
+	border-radius: 14px;
+	padding: 12px 14px;
+	box-shadow: var(--shadow-sm);
+}
+
+.rules-pattern-icon {
+	flex: 0 0 auto;
+	width: 46px;
+	height: 46px;
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--primary-container);
+	color: var(--on-primary-container);
+	font-size: 1.3rem;
+}
+
+.rules-pattern-name {
+	margin: 0 0 2px;
+	font-weight: 700;
+	color: var(--on-surface);
+}
+
+.rules-start {
+	margin-top: 22px;
+}
+
+/* Desktop: flow becomes numbered cards, patterns go two-up */
+@media (min-width: 761px) {
+	.rules-flow {
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 12px;
+	}
+
+	.rules-flow::before {
+		display: none;
+	}
+
+	.rules-step {
+		flex: 1 1 150px;
+		display: block;
+		background: var(--surface);
+		border: 1px solid var(--surface-variant);
+		border-radius: 16px;
+		padding: 16px;
+		box-shadow: var(--shadow-sm);
+	}
+
+	.rules-step-badge {
+		margin-bottom: 10px;
+	}
+
+	.rules-step-title {
+		margin-top: 0;
+	}
+
+	.rules-patterns {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 10px;
+	}
+}
