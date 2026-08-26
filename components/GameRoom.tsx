@@ -225,12 +225,15 @@ export function GameRoom({ gameID }: { gameID: string }) {
 			.finally(() => setDrawing(false));
 	}, [gameID]);
 
-	// Which ticket (if any) satisfies a pattern right now, for the claim button.
+	// Which ticket (if any) satisfies a pattern from the numbers the player has
+	// actually marked (daubed) — you can only claim what you have marked, like real
+	// Tambola. With auto-mark on this fills in automatically; the server still
+	// verifies the numbers were genuinely called.
 	const satisfyingTicket = useCallback(
 		(pattern: PatternID): MyTicket | null => {
-			return tickets.find((t) => validateClaim(t.numbers, calledSet, pattern)) ?? null;
+			return tickets.find((t) => validateClaim(t.numbers, daubed, pattern)) ?? null;
 		},
-		[tickets, calledSet],
+		[tickets, daubed],
 	);
 
 	const onClaim = useCallback(
