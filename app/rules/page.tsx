@@ -54,7 +54,12 @@ const SAMPLE_ROW: { n: number | null; stamped?: boolean }[] = [
 export default function RulesPage() {
 	return (
 		<div className="rules-page">
-			<h1 className="rules-title">How to play</h1>
+			<div className="rules-head">
+				<h1 className="rules-title">How to play</h1>
+				<Link href="/" className="btn btn-primary btn-small rules-start">
+					▶ Start a game
+				</Link>
+			</div>
 			<p className="rules-lead">
 				Master the digital version of the classic game — fast, fair, and free.
 			</p>
@@ -124,9 +129,6 @@ export default function RulesPage() {
 				</p>
 			</section>
 
-			<Link href="/" className="btn btn-primary btn-block rules-start">
-				▶ Start a game
-			</Link>
 		</div>
 	);
 }

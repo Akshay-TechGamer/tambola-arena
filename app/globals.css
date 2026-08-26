@@ -1988,17 +1988,39 @@ button {
 	margin: 0 auto;
 }
 
+.rules-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	margin: 4px 0 6px;
+}
+
 .rules-title {
+	flex: 0 1 auto;
+	min-width: 0;
 	font-family: var(--font-display);
-	font-size: 2rem;
+	font-size: 1.5rem;
 	font-weight: 800;
 	color: var(--primary);
-	margin: 4px 0 6px;
+	margin: 0;
 }
 
 .rules-lead {
 	color: var(--on-surface-variant);
 	margin: 0 0 8px;
+}
+
+.rules-start {
+	flex: 0 0 auto;
+	white-space: nowrap;
+	box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 761px) {
+	.rules-title {
+		font-size: 2rem;
+	}
 }
 
 .rules-section {
@@ -2171,10 +2193,6 @@ button {
 	margin: 0 0 2px;
 	font-weight: 700;
 	color: var(--on-surface);
-}
-
-.rules-start {
-	margin-top: 22px;
 }
 
 /* Desktop: flow becomes numbered cards, patterns go two-up */
