@@ -1652,112 +1652,185 @@ button {
 	color: var(--primary);
 }
 
-/* ---------- Results: winnings by player + totals ---------- */
+/* ---------- Results screen (redesign: hero + sections + summary) ---------- */
+
+.results {
+	display: flex;
+	flex-direction: column;
+}
+
+/* Hero header with trophies + game meta */
+.results-hero {
+	margin: -4px -4px 4px;
+	padding: 18px 16px 16px;
+	text-align: center;
+	border-radius: 14px;
+	background: linear-gradient(180deg, rgba(255, 153, 51, 0.14), rgba(255, 153, 51, 0.04));
+	border: 1px solid rgba(255, 153, 51, 0.28);
+}
+
+.results-hero-title {
+	margin: 0;
+	font-family: var(--font-display);
+	font-size: 1.5rem;
+	font-weight: 800;
+	color: var(--primary);
+	line-height: 1.15;
+}
+
+.results-hero-meta {
+	margin: 6px 0 0;
+	font-size: 0.82rem;
+	font-weight: 600;
+	color: var(--on-surface-variant);
+}
+
+.results-section {
+	margin-top: 18px;
+}
 
 .results-subhead {
-	margin: 16px 0 8px;
+	margin: 0 0 10px;
 	font-family: var(--font-display);
 	font-size: 0.95rem;
 	font-weight: 700;
 	color: var(--primary);
 }
 
+/* Category winners — divided card */
+.cat-winners {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	background: var(--surface);
+	border: 1px solid var(--surface-variant);
+	border-radius: 14px;
+	overflow: hidden;
+}
+
+.cat-winner-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 14px;
+}
+
+.cat-winner-row + .cat-winner-row {
+	border-top: 1px solid var(--surface-variant);
+}
+
+.cat-pattern {
+	flex: 0 0 auto;
+	min-width: 96px;
+	font-family: var(--font-num);
+	font-weight: 700;
+	color: var(--on-surface);
+}
+
+.cat-name {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-weight: 600;
+	color: var(--on-surface);
+}
+
+.cat-check {
+	color: var(--tertiary);
+	font-weight: 800;
+}
+
+.cat-amount {
+	flex: 0 0 auto;
+	font-family: var(--font-num);
+	font-weight: 800;
+	color: var(--primary);
+	white-space: nowrap;
+}
+
+/* Winnings by player */
 .winnings-list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 6px;
+	gap: 8px;
 }
 
-.winnings-list li {
+.winning-row {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 10px;
-	padding: 8px 12px;
+	padding: 11px 14px;
 	background: var(--surface-low);
-	border-radius: 10px;
+	border: 1px solid var(--surface-variant);
+	border-radius: 14px;
 }
 
-.winnings-name {
+.winning-left {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+}
+
+.winning-name {
 	font-weight: 700;
 	color: var(--on-surface);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .winnings-count {
+	flex: 0 0 auto;
 	color: var(--on-surface-variant);
 	font-weight: 500;
 	font-size: 0.82rem;
 }
 
-.results-total {
-	display: flex;
+.rank-pill {
+	flex: 0 0 auto;
+	display: inline-flex;
 	align-items: center;
-	justify-content: space-between;
-	margin-top: 12px;
-	padding: 11px 14px;
-	background: var(--primary-container);
-	color: var(--on-primary-container);
-	border-radius: 12px;
-	font-weight: 700;
-}
-
-.results-total b {
-	font-family: var(--font-num);
-	font-size: 1.2rem;
-}
-
-.results-pot {
-	margin-top: 8px;
-	background: var(--surface);
-	color: var(--on-surface-variant);
-	border: 1px solid var(--surface-variant);
-	font-weight: 600;
-}
-
-.results-pot b {
-	font-size: 1.05rem;
-	color: var(--primary);
-}
-
-/* ---------- Top-3 prize ranks in results ---------- */
-
-.winnings-ranked {
-	border: 1px solid transparent;
-}
-
-.winnings-rank-1 {
-	background: linear-gradient(90deg, rgba(255, 209, 102, 0.4), var(--surface-low));
-	border-color: rgba(224, 174, 47, 0.65);
-}
-
-.winnings-rank-2 {
-	background: linear-gradient(90deg, rgba(198, 206, 216, 0.45), var(--surface-low));
-	border-color: rgba(150, 160, 175, 0.55);
-}
-
-.winnings-rank-3 {
-	background: linear-gradient(90deg, rgba(230, 185, 138, 0.4), var(--surface-low));
-	border-color: rgba(190, 140, 90, 0.55);
-}
-
-.rank-badge {
-	display: inline-block;
-	font-size: 0.68rem;
+	gap: 4px;
+	font-size: 0.72rem;
 	font-weight: 800;
 	letter-spacing: 0.02em;
-	padding: 2px 8px;
+	padding: 3px 10px;
 	border-radius: 999px;
-	margin-right: 8px;
-	vertical-align: middle;
 	white-space: nowrap;
 }
 
+.rank-spacer {
+	flex: 0 0 auto;
+	width: 6px;
+}
+
+/* Podium tints for the top 3 rows + matching pills */
+.winnings-rank-1 {
+	background: linear-gradient(100deg, rgba(255, 153, 51, 0.16), var(--surface-low) 70%);
+	border-color: rgba(255, 153, 51, 0.55);
+	box-shadow: var(--shadow-sm);
+}
+
+.winnings-rank-2 {
+	background: linear-gradient(100deg, rgba(198, 206, 216, 0.4), var(--surface-low) 70%);
+	border-color: rgba(150, 160, 175, 0.5);
+}
+
+.winnings-rank-3 {
+	background: linear-gradient(100deg, rgba(205, 127, 50, 0.18), var(--surface-low) 70%);
+	border-color: rgba(190, 140, 90, 0.5);
+}
+
 .rank-1 {
-	background: #ffd875;
-	color: #7a5600;
+	background: var(--primary-container);
+	color: var(--on-primary-container);
 }
 
 .rank-2 {
@@ -1766,6 +1839,68 @@ button {
 }
 
 .rank-3 {
-	background: #e8bd8f;
-	color: #74471c;
+	background: rgba(205, 127, 50, 0.22);
+	color: #8b5a2b;
+}
+
+/* Summary — Total won + Pot as big number cards */
+.results-summary {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+	margin-top: 18px;
+}
+
+.summary-card {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 16px;
+	border-radius: 14px;
+	background: var(--surface-container, #f0eded);
+	border: 1px solid var(--surface-variant);
+}
+
+.summary-total {
+	background: var(--primary-container);
+	border-color: transparent;
+}
+
+.summary-label {
+	font-size: 0.8rem;
+	font-weight: 600;
+	color: var(--on-surface-variant);
+}
+
+.summary-total .summary-label {
+	color: var(--on-primary-container);
+}
+
+.summary-value {
+	font-family: var(--font-display);
+	font-size: 1.75rem;
+	font-weight: 800;
+	color: var(--on-surface);
+	line-height: 1.05;
+}
+
+.summary-total .summary-value {
+	color: var(--on-primary-container);
+}
+
+.results-actions {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-top: 18px;
+}
+
+@media (min-width: 480px) {
+	.results-actions {
+		flex-direction: row;
+	}
+
+	.results-actions .btn {
+		flex: 1;
+	}
 }

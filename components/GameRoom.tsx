@@ -421,57 +421,99 @@ export function GameRoom({ gameID }: { gameID: string }) {
 	const pot = game.entry_amount * players.length;
 
 	const resultsPanel = (
-		<section className="panel">
-			<h2 className="panel-title">🏆 Final results</h2>
-			{claims.filter((c) => c.status === 'won').length === 0 ? (
+		<section className="results">
+			<header className="results-hero">
+				<h2 className="results-hero-title">🏆 Final results 🏆</h2>
+				<p className="results-hero-meta">
+					Game {game.invite_code} · {players.length} {players.length === 1 ? 'player' : 'players'}
+				</p>
+			</header>
+			{wonClaims.length === 0 ? (
 				<p className="game-subtitle">No prizes were claimed.</p>
 			) : (
 				<>
-				<ul className="pattern-list">
-					{claims
-						.filter((c) => c.status === 'won')
-						.map((c) => (
-							<li key={c.id} className="prize-won">
-								<span>{patternLabel(c.pattern as PatternID)}</span>
-								<span className="prize-winner">
-									✓ {c.username}
-									{(prizeAmounts[c.pattern] ?? 0) > 0 ? ` · ₹${prizeAmounts[c.pattern]}` : ''}
-								</span>
-							</li>
-						))}
-				</ul>
-				<h3 className="results-subhead">Winnings by player</h3>
-				<ul className="winnings-list">
-					{winnings.map((w, index) => {
-						const rank = w.total > 0 && index < 3 ? index + 1 : 0;
-						return (
-							<li key={w.username} className={rank ? `winnings-ranked winnings-rank-${rank}` : ''}>
-								<span className="winnings-name">
-									{rank > 0 && (
-										<span className={`rank-badge rank-${rank}`}>
-											{['🥇', '🥈', '🥉'][rank - 1]} {['1st', '2nd', '3rd'][rank - 1]} Prize
+					<section className="results-section">
+						<h3 className="results-subhead">⭐ Category winners</h3>
+						<ul className="cat-winners">
+							{wonClaims.map((c) => (
+								<li key={c.id} className="cat-winner-row">
+									<span className="cat-pattern">{patternLabel(c.pattern as PatternID)}</span>
+									<span className="cat-name">
+										<span className="cat-check">✓</span> {c.username}
+									</span>
+									<span className="cat-amount">
+										{(prizeAmounts[c.pattern] ?? 0) > 0 ? `₹${prizeAmounts[c.pattern]}` : '—'}
+									</span>
+								</li>
+							))}
+						</ul>
+					</section>
+
+					<section className="results-section">
+						<h3 className="results-subhead">📊 Winnings by player</h3>
+						<ul className="winnings-list">
+							{winnings.map((w, index) => {
+								const rank = w.total > 0 && index < 3 ? index + 1 : 0;
+								return (
+									<li
+										key={w.username}
+										className={`winning-row${rank ? ` winnings-rank-${rank}` : ''}`}
+									>
+										<span className="winning-left">
+											{rank > 0 ? (
+												<span className={`rank-pill rank-${rank}`}>
+													{['🥇', '🥈', '🥉'][rank - 1]} {['1st', '2nd', '3rd'][rank - 1]}
+												</span>
+											) : (
+												<span className="rank-spacer" />
+											)}
+											<span className="winning-name">{w.username}</span>
+											<span className="winnings-count">
+												{w.count} {w.count === 1 ? 'win' : 'wins'}
+											</span>
 										</span>
-									)}
-									{w.username} <span className="winnings-count">· {w.count} {w.count === 1 ? 'win' : 'wins'}</span>
+										<span className="prize-money">₹{w.total}</span>
+									</li>
+								);
+							})}
+						</ul>
+					</section>
+
+					<div className="results-summary">
+						<div className="summary-card summary-total">
+							<span className="summary-label">Total won</span>
+							<span className="summary-value">₹{totalWon}</span>
+						</div>
+						{game.entry_amount > 0 && (
+							<div className="summary-card">
+								<span className="summary-label">
+									Pot ({players.length} × ₹{game.entry_amount})
 								</span>
-								<span className="prize-money">₹{w.total}</span>
-							</li>
-						);
-					})}
-				</ul>
-				<div className="results-total">
-					<span>Total won</span>
-					<b>₹{totalWon}</b>
-				</div>
-				{game.entry_amount > 0 && (
-					<div className="results-total results-pot">
-						<span>Pot ({players.length} × ₹{game.entry_amount})</span>
-						<b>₹{pot}</b>
+								<span className="summary-value">₹{pot}</span>
+							</div>
+						)}
 					</div>
-				)}
-					<button type="button" className="btn btn-primary btn-block" onClick={() => { window.location.href = '/'; }}>
-						🎉 New game
-					</button>
+
+					<div className="results-actions">
+						<button
+							type="button"
+							className="btn btn-primary btn-block"
+							onClick={() => {
+								window.location.href = '/';
+							}}
+						>
+							🎉 New game
+						</button>
+						<button
+							type="button"
+							className="btn btn-block"
+							onClick={() => {
+								window.location.href = '/';
+							}}
+						>
+							Back to lobby
+						</button>
+					</div>
 				</>
 			)}
 		</section>
@@ -587,9 +629,7 @@ export function GameRoom({ gameID }: { gameID: string }) {
 				</BottomSheet>
 			)}
 			{sheet === 'results' && (
-				<BottomSheet title="Final results" onClose={() => setSheet(null)}>
-					{resultsPanel}
-				</BottomSheet>
+				<BottomSheet onClose={() => setSheet(null)}>{resultsPanel}</BottomSheet>
 			)}
 		</div>
 	);
