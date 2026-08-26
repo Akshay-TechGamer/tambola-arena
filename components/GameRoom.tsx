@@ -442,14 +442,22 @@ export function GameRoom({ gameID }: { gameID: string }) {
 				</ul>
 				<h3 className="results-subhead">Winnings by player</h3>
 				<ul className="winnings-list">
-					{winnings.map((w) => (
-						<li key={w.username}>
-							<span className="winnings-name">
-								{w.username} <span className="winnings-count">· {w.count} {w.count === 1 ? 'win' : 'wins'}</span>
-							</span>
-							<span className="prize-money">₹{w.total}</span>
-						</li>
-					))}
+					{winnings.map((w, index) => {
+						const rank = w.total > 0 && index < 3 ? index + 1 : 0;
+						return (
+							<li key={w.username} className={rank ? `winnings-ranked winnings-rank-${rank}` : ''}>
+								<span className="winnings-name">
+									{rank > 0 && (
+										<span className={`rank-badge rank-${rank}`}>
+											{['🥇', '🥈', '🥉'][rank - 1]} {['1st', '2nd', '3rd'][rank - 1]} Prize
+										</span>
+									)}
+									{w.username} <span className="winnings-count">· {w.count} {w.count === 1 ? 'win' : 'wins'}</span>
+								</span>
+								<span className="prize-money">₹{w.total}</span>
+							</li>
+						);
+					})}
 				</ul>
 				<div className="results-total">
 					<span>Total won</span>
